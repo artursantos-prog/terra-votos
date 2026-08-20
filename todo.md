@@ -41,6 +41,41 @@ A candidatura adicional de Roraima foi identificada como LARISSA MULHERES DA SEG
 
 Uma leitura posterior confirmou que SAMUEL CAMARA já aparece no CSV oficial de 2º suplente do Pará; a comparação direta por identificador corrigiu a atribuição da divergência para KINZINHO.
 
+## Evolução solicitada
+
+- [x] Confirmar a regra editorial para a contagem oficial e a elegibilidade das situações de candidatura.
+- [ ] Consolidar dados oficiais de candidaturas, suplentes e redes sociais em uma estrutura relacional.
+- [ ] Completar o vínculo de 100% dos vices e suplentes aos titulares e validar na interface os casos sem relação oficial disponível.
+- [x] Criar a seleção persistente de perfis e a exportação da colinha em PDF para impressão.
+- [x] Disponibilizar formulário público de apontamento e área privada de revisão com autenticação.
+- [ ] Definir e testar atualização automatizada duas vezes ao dia com a fonte oficial de dados abertos.
+
+## Fontes adicionais
+
+O recurso oficial de redes sociais foi confirmado em `rede_social_candidato_2026.zip`, publicado no conjunto Candidatos 2026 do Portal de Dados Abertos do TSE. O CDN rejeitou o download direto nesta sessão; a integração deve tratar esse caso com retentativas controladas e preservar a última base válida, em vez de remover redes sociais quando a fonte estiver temporariamente indisponível.
+
+O recurso complementar oficial foi confirmado em `consulta_cand_complementar_2026.zip`. Nele, `DS_SITUACAO_JULGAMENTO` contém a situação necessária para aplicar o recorte editorial de candidaturas deferidas ou aguardando julgamento. O CDN também rejeitou o download direto durante esta sessão; a rotina automática preservará o último snapshot válido quando a fonte não responder.
+
+Os arquivos complementares encaminhados não contêm Bahia nem Distrito Federal. A tentativa inicial de complementar esses estados pela API pública do portal falhou devido a uma rota incompleta no contexto carregado; a alternativa será usar a URL pública absoluta do endpoint, sem repetir a mesma chamada relativa.
+
+A consulta pela URL pública absoluta funcionou e exportou 1.861 registros de Bahia e Distrito Federal, com as situações Deferido, Aguardando julgamento e demais estados de candidatura. Esses dados serão usados apenas para completar o filtro editorial dessas duas unidades, sem substituir os arquivos oficiais já disponíveis para os demais estados.
+
+A interface atualizada foi validada no navegador: a lista pública mostra 20.482 candidaturas que atendem ao recorte editorial aplicado; ao filtrar Presidente, as 13 candidaturas titulares exibem a ação de adicionar à colinha. Os cards de suplentes exibem a candidatura principal associada e não podem ser selecionados isoladamente.
+
+No perfil público do DivulgaCandContas, a chamada de detalhe foi identificada no formato `/divulga/rest/v1/candidatura/buscar/{ano}/{UF}/{idEleicao}/candidato/{SQ_CANDIDATO}`. A resposta desse endpoint será verificada para integrar redes sociais oficiais quando o pacote de dados abertos estiver indisponível.
+
+O detalhe público expõe `idCandidatoSuperior` e a lista `vices`, e a listagem pública disponibiliza a mesma chave para cada candidatura. O processamento passará a priorizar essa chave oficial ao vincular vices e suplentes; a aproximação por número, partido e UF permanecerá apenas como último recurso documentado quando a fonte não fornecer a relação.
+
+## Decisão de automação
+
+Foi escolhida a atualização automática duas vezes ao dia. A implementação deverá incluir:
+
+- [x] migrar o projeto para uma base com banco de dados, autenticação e tarefas agendadas;
+- [x] persistir a última sincronização válida e um histórico de execuções;
+- [x] importar somente candidaturas deferidas ou aguardando julgamento;
+- [x] registrar falhas de download sem substituir os dados publicados;
+- [x] proteger o painel de apontamentos com acesso autenticado.
+
 A rota correta do detalhe individual foi confirmada como `/candidato/{regiao}/{uf}/{idEleicao}/{idCandidato}/{ano}/{sgUe}`. A tentativa inicial não atualizou a tela porque a aplicação preservou o estado da lista; a próxima consulta usará diretamente o endpoint correspondente, evitando depender da transição visual da rota.
 
 Os parâmetros `idCandidato`, `ano`, `idEleicao`, `UF` e `sgUe` são efetivamente usados no módulo de detalhe e nas consultas de prestação de contas. A próxima investigação buscará a chamada de serviço que hidrata o objeto principal de candidato, onde deve estar a `fotoUrl` quando ela estiver publicável.

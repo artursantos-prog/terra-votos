@@ -45,3 +45,7 @@ O protótipo inicial não exibirá fotos, conforme decisão do usuário. A base 
 
 - A consolidação dos CSVs principais resultou em **20.638 candidaturas** distribuídas por 28 abrangências eleitorais (incluindo Brasil), com opções de filtros para UF, partido e cargo.
 - A consulta ao endereço do TSE enviado pelo usuário encontrou uma etapa anti-automação. Ela não é necessária para esta primeira entrega e não será utilizada enquanto as fotos permanecerem fora do escopo.
+
+## Ampliação: colinha e confiança editorial
+
+O Checa Aí foi analisado apenas como referência funcional. As decisões de design do Terra continuam soberanas: não adotaremos sua identidade visual. Aproveitaremos, contudo, três padrões de utilidade pública: a escolha da UF como primeiro contexto de navegação, a transparência sobre a última sincronização e a exploração por situação de candidatura. A colinha será uma extensão própria da linguagem editorial laranja e branca do Terra, com seleção explícita, ordem dos cargos e impressão em PDF.
