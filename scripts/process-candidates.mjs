@@ -1,10 +1,11 @@
 import fs from "node:fs";
 import path from "node:path";
 
-const inputDirectory = "/home/ubuntu/upload";
+const inputDirectory = process.env.CANDIDATES_SOURCE_DIR ?? "/home/ubuntu/upload";
 const outputDirectory = "/home/ubuntu/webdev-static-assets";
 const outputPath = path.join(outputDirectory, "candidatos-eleicoes-2026.json");
 const summaryPath = path.join(outputDirectory, "candidatos-eleicoes-2026-resumo.json");
+const electionId = "20322002026";
 
 function parseCsvLine(line) {
   const values = [];
@@ -65,6 +66,7 @@ for (const fileName of fileNames) {
     const partyAcronym = fields[indexes.get("SG_PARTIDO")]?.trim();
     const state = fields[indexes.get("SG_UF")]?.trim();
     const office = fields[indexes.get("DS_CARGO")]?.trim();
+    const electoralUnit = fields[indexes.get("SG_UE")]?.trim() || state;
 
     if (!candidateId || !ballotNumber || !ballotName || ballotName === "#NULO" || !partyAcronym || !state || !office) {
       continue;
@@ -80,6 +82,7 @@ for (const fileName of fileNames) {
       uf: state,
       cargo: office,
       situacao: fields[indexes.get("DS_SITUACAO_CANDIDATURA")]?.trim() || "Não informado",
+      fotoUrl: `https://divulgacandcontas.tse.jus.br/divulga/rest/arquivo/img/${electionId}/${candidateId}/${electoralUnit}`,
       pesquisa: normalize([ballotName, fields[indexes.get("NM_CANDIDATO")]?.trim(), ballotNumber, partyAcronym, state, office].filter(Boolean).join(" ")),
     });
   }
@@ -97,7 +100,8 @@ const summary = {
   estados: [...new Set(candidates.map((candidate) => candidate.uf))].sort(),
   partidos: [...new Set(candidates.map((candidate) => candidate.partido))].sort(),
   cargos: [...new Set(candidates.map((candidate) => candidate.cargo))].sort(),
-  fonte: "Arquivos CSV de candidaturas enviados pelo usuário",
+  fonte: "Dados públicos de candidaturas do TSE, consolidados a partir dos CSVs oficiais",
+  fotos: "URL pública de foto do DivulgaCandContas por SQ_CANDIDATO",
 };
 
 fs.mkdirSync(outputDirectory, { recursive: true });

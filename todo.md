@@ -1,0 +1,48 @@
+- [x] Mapear o fluxo público de filtros do DivulgaCandContas e seus limites de acesso automatizado.
+- [x] Identificar uma fonte pública e reproduzível das fotos vinculada aos candidatos da eleição de 2026.
+- [x] Comparar por UF, cargo e identificador a cobertura do portal do TSE com os 28 CSVs principais recebidos.
+- [x] Classificar candidatos ausentes, novos, duplicados ou com situação atualizada.
+- [x] Atualizar a base pública e os cards do buscador com fotos, sem expor campos pessoais não necessários.
+- [x] Validar a versão atualizada em desktop e celular e preparar o relatório de cobertura.
+
+## Registro de investigação
+
+O acesso inicial ao endereço público `https://divulgacandcontas.tse.jus.br/divulga/#/home` retornou uma aplicação sem conteúdo visível no ambiente automatizado, mesmo após nova leitura. A próxima etapa é analisar apenas os recursos públicos que a página referencia e procurar fontes oficiais alternativas que não exijam a manipulação manual da interface.
+
+O acesso posterior ao perfil enviado pelo usuário confirmou o fluxo público de consulta: unidade eleitoral, cargo obrigatório, partido opcional e pesquisa. Também confirmou que o portal informa atualização a cada 60 minutos. O pacote oficial de fotos por UF, publicado no Portal de Dados Abertos do TSE, pôde ser baixado pelo navegador; o download direto via linha de comando recebeu resposta 403 do CDN. A coleta usará o caminho oficial de dados abertos, sem depender da extração visual de cada perfil.
+
+O filtro público foi acionado na abrangência Brasil e confirmou que a seleção de cargo é obrigatória antes da pesquisa; Presidente e Vice-presidente são as opções na abrangência nacional. Esse comportamento confirma a estratégia de associação por UF e cargo, mas a extração de fotos continuará baseada nos arquivos oficiais por UF, cuja nomenclatura já traz o identificador `SQ_CANDIDATO`.
+
+A pesquisa pública por Presidente retornou 13 registros e exibiu a lista nominal, incluindo Zema (NOVO, 30). Esse total coincide com a soma publicada na página inicial do DivulgaCandContas para esse cargo. A comparação em arquivo continuará sendo a verificação abrangente por identificador, porque é mais confiável e escalável que a navegação manual dos filtros.
+
+Os recursos JavaScript públicos do DivulgaCandContas respondem no próprio contexto do navegador, embora bloqueiem requisições diretas de linha de comando. A primeira inspeção confirmou módulos públicos relacionados a “Bem na Foto”, mas não revelou ainda uma URL de imagem por candidato; a investigação seguirá pelos módulos carregados na rota de candidaturas.
+
+O CDN de fotos também bloqueou a leitura via `fetch` a partir do domínio do DivulgaCandContas, o que indica uma restrição de origem. A navegação direta no navegador, por outro lado, baixa os arquivos oficiais normalmente. Para escala, será necessário extrair uma rota de imagem individual do portal ou utilizar a coleção de ZIPs oficiais de fotos por UF por meio do navegador.
+
+O manifesto público da aplicação identificou o módulo de rotas de candidaturas como `829.00d399bdb2b1f6cc.js`. A próxima inspeção será limitada a esse módulo, buscando a rota utilizada no detalhe de candidato e qualquer URL de foto individual. Não haverá extração de dados além dos campos públicos necessários ao buscador.
+
+O módulo de candidatos confirmou que a interface do DivulgaCandContas usa campos de URL pública de foto (`fotoUrlPublicavel` e `urlFotoPublicavel`) nos resultados e detalhes. A próxima etapa é identificar o endpoint público que popula esses campos, para que os cards possam exibir a foto sem manter dezenas de milhares de arquivos no projeto.
+
+O endpoint público de listagem foi identificado no formato `/divulga/rest/v1/candidatura/listar/{ano}/{UF}/{idEleicao}/{codigoCargo}/candidatos`. Ele retorna o identificador `id` compatível com `SQ_CANDIDATO` e os campos `fotoUrl` e `fotoUrlPublicavel`. No primeiro retorno de lista, os campos de foto vieram nulos para registros ainda aguardando julgamento; será necessário consultar o detalhe ou associar as imagens pelo pacote oficial para cobrir as candidaturas divulgadas.
+
+A página de detalhe confirmou a URL pública de imagem no formato `https://divulgacandcontas.tse.jus.br/divulga/rest/arquivo/img/{idEleicao}/{SQ_CANDIDATO}/{SG_UE}`. A foto de teste foi exibida corretamente para Zema usando `https://divulgacandcontas.tse.jus.br/divulga/rest/arquivo/img/20322002026/280002539826/BR`. Essa rota evita downloads e hospedagem local de dezenas de milhares de imagens.
+
+A coleta integral dos endpoints de listagem excedeu o limite de execução de uma única operação no navegador. Uma coleta reduzida para Presidente e Vice-presidente funcionou e gerou 26 registros, confirmando que a comparação precisa ser executada em lotes pequenos e consolidados localmente. Os campos de foto retornados na listagem continuam nulos para esses registros; a URL de imagem do detalhe seguirá como fonte dos cards.
+
+A comparação de totais por cargo encontrou diferenças entre a atualização horária do portal e a extração oficial por arquivo, que é atualizada quatro vezes ao dia. O portal registrou 20.643 pedidos, enquanto o arquivo oficial atual contém 20.639 candidatos; a diferença foi confirmada, por exemplo, na disputa para governador do Pará, onde o portal já mostra WELL MACEDO (`SQ_CANDIDATO` 140002554108) e o CSV oficial ainda não o contém. A base do buscador adotará o arquivo oficial mais recente e registrará essa defasagem transitória de publicação.
+
+O mesmo atraso transitório ocorre para Vice-Governador no Pará: o portal já relaciona SEU ALEX (`SQ_CANDIDATO` 140002554109), enquanto a extração oficial ainda não o traz. A lista também mostra WELL MACEDO como vice em situação de renúncia, o que reforça que o portal pode refletir eventos de candidatura antes do próximo ciclo do arquivo de dados abertos.
+
+A terceira diferença está no cargo de 2º suplente no Pará: o portal mostra 12 registros e o arquivo oficial 11. A comparação direta por identificador confirmou que KINZINHO (`SQ_CANDIDATO` 140002553960, SOLIDARIEDADE, número 777) consta no resultado público atual e ainda não aparece na extração oficial consolidada.
+
+A quarta diferença está entre candidaturas a deputado federal em Roraima: o portal apresenta 106 e o CSV oficial 105. A lista pública atual inclui a candidatura adicional, que será mantida como divergência transitória até a próxima atualização do arquivo oficial. Com isso, os quatro registros adicionais do portal em relação ao CSV foram localizados por cargo e UF: Governador/PA, Vice-Governador/PA, 2º Suplente/PA e Deputado Federal/RR.
+
+A candidatura adicional de Roraima foi identificada como LARISSA MULHERES DA SEGURANÇA (`SQ_CANDIDATO` 230002554110, PSOL, número 5057). Ela está no portal e não consta no CSV oficial baixado nesta verificação. A base do buscador permanece sincronizada com o arquivo oficial mais recente, que também incorporou PAULA CRISTIANE (`SQ_CANDIDATO` 170002554086, AVANTE, número 70231, deputada estadual de Pernambuco) em relação aos arquivos originalmente enviados.
+
+Uma leitura posterior confirmou que SAMUEL CAMARA já aparece no CSV oficial de 2º suplente do Pará; a comparação direta por identificador corrigiu a atribuição da divergência para KINZINHO.
+
+A rota correta do detalhe individual foi confirmada como `/candidato/{regiao}/{uf}/{idEleicao}/{idCandidato}/{ano}/{sgUe}`. A tentativa inicial não atualizou a tela porque a aplicação preservou o estado da lista; a próxima consulta usará diretamente o endpoint correspondente, evitando depender da transição visual da rota.
+
+Os parâmetros `idCandidato`, `ano`, `idEleicao`, `UF` e `sgUe` são efetivamente usados no módulo de detalhe e nas consultas de prestação de contas. A próxima investigação buscará a chamada de serviço que hidrata o objeto principal de candidato, onde deve estar a `fotoUrl` quando ela estiver publicável.
+
+A navegação foi solicitada explicitamente pela rota interna de detalhe para o candidato de teste. A leitura seguinte verificará se a interface a processou e quais recursos públicos foram requisitados, sem alterar dados ou submeter qualquer formulário externo.

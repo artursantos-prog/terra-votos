@@ -40,13 +40,13 @@ Após publicar este projeto, substitua `https://SEU-SUBDOMINIO.manus.space` pelo
 
 ## Observações de integração
 
-O componente já contém a interface, os filtros e a base pública processada. Não é necessário incluir arquivos CSS, JavaScript ou CSV adicionais na página hospedeira. O `iframe` é a opção mais segura para preservar o isolamento de estilos e scripts entre o portal e o buscador.
+O componente já contém a interface, os filtros, os cards com foto e a base pública processada. Não é necessário incluir arquivos CSS, JavaScript ou CSV adicionais na página hospedeira. O `iframe` é a opção mais segura para preservar o isolamento de estilos e scripts entre o portal e o buscador.
 
-O buscador carrega um JSON público, reduzido exclusivamente aos campos necessários para o uso editorial: estado, cargo, nome de urna, nome completo, partido, número de urna e situação da candidatura. Os identificadores únicos e demais campos pessoais existentes nos CSVs de origem não são publicados no navegador.
+O buscador carrega um JSON público, reduzido exclusivamente aos campos necessários para o uso editorial: estado, cargo, nome de urna, nome completo, partido, número de urna, situação da candidatura e uma URL pública de foto. A chave técnica pública da candidatura é mantida apenas para renderização e associação estável dos cards; campos pessoais desnecessários existentes nos CSVs de origem não são publicados no navegador.
 
-## Fotos
+## Fotos e atualização eleitoral
 
-Esta primeira versão foi deliberadamente preparada sem fotos. Quando os arquivos de imagem estiverem disponíveis, cada card poderá receber uma foto sem modificar a estrutura dos filtros ou a integração por `iframe`.
+As fotos são carregadas diretamente da rota pública de imagem do DivulgaCandContas, associada ao identificador de cada candidatura. Isso evita armazenar milhares de imagens no projeto e mantém os cards alinhados ao acervo do TSE. A base atual foi consolidada a partir do arquivo oficial mais recente de candidaturas de 20/08/2026. O Portal de Dados Abertos informa atualização quatro vezes por dia; o DivulgaCandContas informa atualização a cada 60 minutos. Em uma checagem pontual, o portal exibiu quatro registros ainda não presentes no arquivo oficial; eles devem ser incorporados automaticamente no próximo ciclo do CSV do TSE.
 
 ## Publicação
 

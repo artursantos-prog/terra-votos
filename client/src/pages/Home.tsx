@@ -24,12 +24,13 @@ type Candidate = {
   uf: string;
   cargo: string;
   situacao: string;
+  fotoUrl: string;
   pesquisa: string;
 };
 
 type CandidateResponse = { candidatos: Candidate[] };
 
-const DATA_URL = "/manus-storage/candidatos-eleicoes-2026_80446c73.json";
+const DATA_URL = "/manus-storage/candidatos-eleicoes-2026_ed6ecc37.json";
 const PAGE_SIZE = 12;
 
 const STATE_NAMES: Record<string, string> = {
@@ -108,8 +109,21 @@ function CandidateCard({ candidate, index }: { candidate: Candidate; index: numb
         <span>{candidate.cargo}</span>
       </div>
       <div className="candidate-main">
-        <h3>{candidate.nome}</h3>
-        <p title={candidate.partidoNome}>{candidate.partido}</p>
+        <div>
+          <h3>{candidate.nome}</h3>
+          <p title={candidate.partidoNome}>{candidate.partido}</p>
+        </div>
+        <div className="candidate-photo">
+          <span>Foto</span>
+          <img
+            src={candidate.fotoUrl}
+            alt={`Foto de ${candidate.nome}`}
+            loading="lazy"
+            onError={(event) => {
+              event.currentTarget.style.display = "none";
+            }}
+          />
+        </div>
       </div>
       <div className="candidate-number" aria-label={`Número de urna ${candidate.numero}`}>
         <span>Número</span>
@@ -236,8 +250,8 @@ export default function Home() {
             <p>Localize candidaturas, partidos e números de urna em todo o Brasil.</p>
           </div>
           <div className="intro-data" aria-label="Informações da base">
-            <strong>20.638</strong>
-            <span>candidaturas<br />na base inicial</span>
+            <strong>{loading ? "…" : candidates.length.toLocaleString("pt-BR")}</strong>
+            <span>candidaturas<br />na base atual</span>
           </div>
         </div>
 
@@ -325,8 +339,8 @@ export default function Home() {
 
         <footer className="site-footer">
           <div>
-            <p>Base eleitoral recebida em 20/08/2026</p>
-            <span>Fonte: arquivos de candidaturas encaminhados para o projeto.</span>
+            <p>Base eleitoral oficial atualizada em 20/08/2026</p>
+            <span>Fonte: Dados Abertos e DivulgaCandContas — TSE.</span>
           </div>
           <button type="button" onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}>
             Voltar aos filtros <ArrowUpRight size={18} aria-hidden="true" />
