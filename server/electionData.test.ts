@@ -32,10 +32,10 @@ describe("buildElectionSnapshot", () => {
       '"3";"999";"EXCLUIDA";"PT";"PA";"SENADOR";"PA";"EXCLUIDA";"PARTIDO TESTE";"5";"Renúncia"',
     ]);
     const socials = zipOf("rede_social_candidato_2026.csv", [
-      '"SQ_CANDIDATO";"DS_URL"',
-      '"2";"https://social.exemplo/candidata"',
-      '"2";"https://social.exemplo/candidata"',
-      '"3";"javascript:alert(1)"',
+      '"SQ_CANDIDATO";"NR_ORDEM_REDE_SOCIAL";"DS_URL"',
+      '"2";"1";"https://social.exemplo/candidata"',
+      '"2";"2";"https://social.exemplo/candidata"',
+      '"3";"1";"javascript:alert(1)"',
     ].join("\n"));
     const snapshot = buildElectionSnapshot(candidates, complementaryZip(["1", "2"]), socials);
     expect(snapshot.totalElegivel).toBe(2);
@@ -71,6 +71,19 @@ describe("buildElectionSnapshot", () => {
     }), { status: 200 })));
     const enriched = await enrichOfficialCandidateMetadata(snapshot);
     const suplente = enriched.candidaturas.find((candidate) => candidate.id === "12");
+    expect(suplente?.titular).toBeUndefined();
+    expect(suplente?.vinculoChapaIndisponivel).toBe(true);
+  });
+
+  it("mantém a importação quando o detalhe oficial de uma chapa está temporariamente indisponível", async () => {
+    const snapshot = buildElectionSnapshot(candidateZip([
+      '"20";"800";"SENADOR TESTE";"PT";"PA";"SENADOR";"PA";"SENADOR TESTE";"PARTIDO A";"5";"Deferido"',
+      '"21";"800";"SUPLENTE TESTE";"PV";"PA";"1º SUPLENTE";"PA";"SUPLENTE TESTE";"PARTIDO B";"9";"Deferido"',
+    ]), complementaryZip(["20", "21"]));
+    vi.stubGlobal("fetch", vi.fn(async () => new Response("temporariamente indisponível", { status: 403 })));
+    const enriched = await enrichOfficialCandidateMetadata(snapshot);
+    const suplente = enriched.candidaturas.find((candidate) => candidate.id === "21");
+    expect(enriched.totalElegivel).toBe(2);
     expect(suplente?.titular).toBeUndefined();
     expect(suplente?.vinculoChapaIndisponivel).toBe(true);
   });

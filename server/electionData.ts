@@ -140,7 +140,7 @@ function parseSocialFiles(zipBuffer: Buffer) {
     const rows = csvRows(entry.getData());
     const headers = parseCsvLine(rows[0] ?? "");
     const idIndex = headers.findIndex((header) => header === "SQ_CANDIDATO");
-    const urlIndex = headers.findIndex((header) => /URL|REDE_SOCIAL/.test(header));
+    const urlIndex = headers.findIndex((header) => header === "DS_URL" || header === "URL");
     if (idIndex < 0 || urlIndex < 0) continue;
     for (const row of rows.slice(1)) {
       const fields = parseCsvLine(row);
@@ -221,7 +221,8 @@ export async function enrichOfficialCandidateMetadata(snapshot: ElectionSnapshot
   const proposalDetails = new Map<string, TSEDetail>();
 
   await collectInBatches(ticketMembers, async (candidate) => {
-    ticketDetails.set(candidate.id, await fetchCandidateDetail(candidate));
+    const detail = await tryFetchCandidateDetail(candidate);
+    if (detail) ticketDetails.set(candidate.id, detail);
   });
   await collectInBatches(proposalCandidates, async (candidate) => {
     const detail = await tryFetchCandidateDetail(candidate);
