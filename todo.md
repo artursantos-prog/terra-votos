@@ -118,10 +118,20 @@ Os parâmetros `idCandidato`, `ano`, `idEleicao`, `UF` e `sgUe` são efetivament
 
 ## Contingência operacional de atualização
 
-- [ ] Criar uma rota autenticada de importação de arquivos oficiais já obtidos pelo navegador, sem aceitar fontes não autorizadas.
-- [ ] Configurar uma tarefa de contingência com navegador para baixar os três arquivos oficiais do TSE e encaminhá-los à rota segura.
-- [ ] Executar uma importação ponta a ponta, verificar o novo snapshot e confirmar a propagação ao iframe.
-- [ ] Remover a dependência de autenticação da rota pública para que o iframe do Terra carregue sem sessão Manus.
-- [ ] Restringir o redirecionamento automático de login às rotas privadas, preservando consultas públicas do buscador.
+- [x] Criar uma rota autenticada de importação de arquivos oficiais já obtidos pelo navegador, sem aceitar fontes não autorizadas.
+- [x] Configurar uma tarefa de contingência com navegador para baixar os três arquivos oficiais do TSE e encaminhá-los à rota segura.
+- [x] Executar uma importação ponta a ponta e registrar o novo snapshot ativo, com redes sociais oficiais preservadas.
+- [x] Remover da página pública a consulta direta de autenticação que poderia iniciar uma sessão desnecessária.
+- [x] Restringir no cliente o redirecionamento automático de login às rotas privadas.
+
+## Ajustes editoriais finais
+
+- [ ] Tornar o domínio publicado acessível publicamente para uso no iframe do portal Terra.
+- [x] Diagnosticar e documentar a falha no login da conta proprietária que bloqueia a alteração de visibilidade pública.
+- [ ] Aguardar a regularização externa da vinculação Google/Manus para aplicar a visibilidade pública autorizada.
+- [ ] Corrigir a visibilidade de publicação para que `/` responda publicamente sem `302` para o login e validar o iframe no domínio final.
+- [ ] Revalidar a propagação do snapshot ativo no embed depois que o domínio público estiver acessível sem autenticação.
+- [x] Corrigir rótulos e textos da busca para português editorial em caixa normal, sem capitalização integral desnecessária.
+- [x] Aumentar a área de foto nos cards de candidatos preservando proporção, qualidade e responsividade.
 
 A navegação foi solicitada explicitamente pela rota interna de detalhe para o candidato de teste. A leitura seguinte verificará se a interface a processou e quais recursos públicos foram requisitados, sem alterar dados ou submeter qualquer formulário externo.
