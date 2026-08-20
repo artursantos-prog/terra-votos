@@ -126,11 +126,11 @@ Os parâmetros `idCandidato`, `ano`, `idEleicao`, `UF` e `sgUe` são efetivament
 
 ## Ajustes editoriais finais
 
-- [ ] Tornar o domínio publicado acessível publicamente para uso no iframe do portal Terra.
+- [x] Tornar o domínio publicado acessível publicamente para uso no iframe do portal Terra (confirmado em 20/08/2026 com carregamento anônimo da aplicação).
 - [x] Diagnosticar e documentar a falha no login da conta proprietária que bloqueia a alteração de visibilidade pública.
-- [ ] Aguardar a regularização externa da vinculação Google/Manus para aplicar a visibilidade pública autorizada.
-- [ ] Corrigir a visibilidade de publicação para que `/` responda publicamente sem `302` para o login e validar o iframe no domínio final.
-- [ ] Revalidar a propagação do snapshot ativo no embed depois que o domínio público estiver acessível sem autenticação.
+- [x] Regularizar a visibilidade por compartilhamento para acesso de qualquer pessoa com o link.
+- [x] Corrigir a visibilidade de publicação para que `/` responda publicamente sem `302` para o login e validar o iframe no domínio final (HTTP 200, sem `X-Frame-Options` ou política CSP que bloqueie frames).
+- [x] Revalidar a propagação do snapshot ativo no embed depois que o domínio público estiver acessível sem autenticação (snapshot renderizado: 20.481 candidaturas).
 - [x] Corrigir rótulos e textos da busca para português editorial em caixa normal, sem capitalização integral desnecessária.
 - [x] Aumentar a área de foto nos cards de candidatos preservando proporção, qualidade e responsividade.
 
