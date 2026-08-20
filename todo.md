@@ -135,3 +135,7 @@ Os parâmetros `idCandidato`, `ano`, `idEleicao`, `UF` e `sgUe` são efetivament
 - [x] Aumentar a área de foto nos cards de candidatos preservando proporção, qualidade e responsividade.
 
 A navegação foi solicitada explicitamente pela rota interna de detalhe para o candidato de teste. A leitura seguinte verificará se a interface a processou e quais recursos públicos foram requisitados, sem alterar dados ou submeter qualquer formulário externo.
+
+## Arquivos de integração para o portal
+
+- [x] Preparar e validar uma página HTML independente para homologar o iframe e um snippet compacto de embed para o portal Terra.
