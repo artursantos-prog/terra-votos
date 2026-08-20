@@ -122,5 +122,6 @@ Os parâmetros `idCandidato`, `ano`, `idEleicao`, `UF` e `sgUe` são efetivament
 - [ ] Configurar uma tarefa de contingência com navegador para baixar os três arquivos oficiais do TSE e encaminhá-los à rota segura.
 - [ ] Executar uma importação ponta a ponta, verificar o novo snapshot e confirmar a propagação ao iframe.
 - [ ] Remover a dependência de autenticação da rota pública para que o iframe do Terra carregue sem sessão Manus.
+- [ ] Restringir o redirecionamento automático de login às rotas privadas, preservando consultas públicas do buscador.
 
 A navegação foi solicitada explicitamente pela rota interna de detalhe para o candidato de teste. A leitura seguinte verificará se a interface a processou e quais recursos públicos foram requisitados, sem alterar dados ou submeter qualquer formulário externo.
