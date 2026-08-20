@@ -103,10 +103,10 @@ Os parâmetros `idCandidato`, `ano`, `idEleicao`, `UF` e `sgUe` são efetivament
 
 ## Auditoria e correções solicitadas
 
-- [ ] Auditar e corrigir os vínculos entre titulares, vices e suplentes somente com relações publicadas em fontes oficiais do TSE.
-- [ ] Tornar a ação de adicionar candidaturas à colinha inequívoca, funcional e disponível nos perfis elegíveis permitidos pela regra editorial.
-- [ ] Reescrever o fluxo de apontamento para deixar explícito que ele aceita qualquer erro ou inconsistência de informação do candidato.
-- [ ] Substituir links genéricos de perfil por links diretos para o plano de governo oficial quando o arquivo estiver publicado pelo TSE.
+- [x] Auditar e corrigir os vínculos entre titulares, vices e suplentes somente com relações publicadas em fontes oficiais do TSE.
+- [x] Tornar a ação de adicionar candidaturas à colinha inequívoca, funcional e disponível nos perfis elegíveis permitidos pela regra editorial.
+- [x] Reescrever o fluxo de apontamento para deixar explícito que ele aceita qualquer erro ou inconsistência de informação do candidato.
+- [x] Substituir links genéricos de perfil por links diretos para o plano de governo oficial quando o arquivo estiver publicado pelo TSE.
 - [ ] Auditar a integridade do snapshot, os filtros, cards, redes sociais, fotos, exportação PDF, área editorial e links externos, sem criar relações não confirmadas.
 - [ ] Validar uma execução real da atualização automática e documentar como o embed passa a refletir o mesmo snapshot publicado.
 

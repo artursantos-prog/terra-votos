@@ -1,5 +1,6 @@
 import * as db from "./db";
 import { buildElectionSnapshot, CANDIDATES_SOURCE_URL, COMPLEMENTARY_SOURCE_URL, downloadOfficialZip, enrichOfficialCandidateMetadata, SOCIAL_SOURCE_URL } from "./electionData";
+import { buildElectionSnapshotFromPublicApi } from "./electionApiFallback";
 import { storageGetSignedUrl, storagePut } from "./storage";
 
 async function preserveConfirmedProposalLinks(snapshot: Awaited<ReturnType<typeof enrichOfficialCandidateMetadata>>) {
@@ -21,18 +22,34 @@ async function preserveConfirmedProposalLinks(snapshot: Awaited<ReturnType<typeo
   }
 }
 
+async function loadPublishedSnapshot() {
+  const previous = await db.getPublishedElectionSnapshot();
+  if (!previous?.dataUrl?.startsWith("/manus-storage/")) return undefined;
+  const key = previous.dataUrl.replace("/manus-storage/", "");
+  const response = await fetch(await storageGetSignedUrl(key));
+  return response.ok ? response.json() as Promise<Awaited<ReturnType<typeof enrichOfficialCandidateMetadata>>> : undefined;
+}
+
 export async function synchronizeElectionSnapshot() {
   const runId = await db.startElectionSync("Portal de Dados Abertos do TSE", CANDIDATES_SOURCE_URL);
   try {
-    const candidateZip = await downloadOfficialZip(CANDIDATES_SOURCE_URL);
-    const complementaryZip = await downloadOfficialZip(COMPLEMENTARY_SOURCE_URL);
-    let socialZip: Buffer | undefined;
+    const previous = await loadPublishedSnapshot().catch(() => undefined);
+    let rawSnapshot;
     try {
-      socialZip = await downloadOfficialZip(SOCIAL_SOURCE_URL);
+      const candidateZip = await downloadOfficialZip(CANDIDATES_SOURCE_URL);
+      const complementaryZip = await downloadOfficialZip(COMPLEMENTARY_SOURCE_URL);
+      let socialZip: Buffer | undefined;
+      try {
+        socialZip = await downloadOfficialZip(SOCIAL_SOURCE_URL);
+      } catch (error) {
+        console.warn("[Elections] Redes sociais não disponíveis nesta sincronização:", String(error));
+      }
+      rawSnapshot = buildElectionSnapshot(candidateZip, complementaryZip, socialZip);
     } catch (error) {
-      console.warn("[Elections] Redes sociais não disponíveis nesta sincronização:", String(error));
+      if (!previous) throw error;
+      console.warn("[Elections] ZIP oficial indisponível; usando API pública oficial de contingência:", String(error));
+      rawSnapshot = await buildElectionSnapshotFromPublicApi(previous);
     }
-    const rawSnapshot = buildElectionSnapshot(candidateZip, complementaryZip, socialZip);
     const enrichedSnapshot = await enrichOfficialCandidateMetadata(rawSnapshot);
     const snapshot = await preserveConfirmedProposalLinks(enrichedSnapshot);
     const key = `eleicoes-2026/candidaturas-${snapshot.geradoEm.replace(/[:.]/g, "-")}.json`;
