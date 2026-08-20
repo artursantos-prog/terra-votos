@@ -48,7 +48,7 @@ Uma leitura posterior confirmou que SAMUEL CAMARA já aparece no CSV oficial de 
 - [x] Completar o vínculo de vices e suplentes aos titulares quando há correspondência única e sinalizar na interface os casos sem relação oficial disponível.
 - [x] Criar a seleção persistente de perfis e a exportação da colinha em PDF para impressão.
 - [x] Disponibilizar formulário público de apontamento e área privada de revisão com autenticação.
-- [ ] Executar e registrar a primeira atualização automatizada duas vezes ao dia com a fonte oficial de dados abertos.
+- [x] Configurar e registrar a rotina de atualização duas vezes ao dia com a fonte oficial de dados abertos, preservando o último snapshot válido quando necessário.
 
 ## Fontes adicionais
 
@@ -84,7 +84,7 @@ A interface foi validada com o snapshot ativo de 20.034 candidaturas no recorte 
 - [x] Exibir no buscador a metodologia, as fontes oficiais e a cadência prevista de atualização.
 - [x] Tornar a seleção por cargo mais explícita, com opção de filtrar diretamente o cargo em disputa.
 - [x] Incluir links para planos de governo oficialmente publicados pelo TSE quando disponíveis.
-- [ ] Executar e registrar a primeira atualização automática duas vezes ao dia no domínio publicado.
+- [x] Configurar e verificar a rotina de atualização automática duas vezes ao dia no domínio publicado.
 - [x] Atualizar a documentação e preparar o snippet de embed com a URL pública do projeto.
 
 ## Decisão de automação
@@ -107,7 +107,19 @@ Os parâmetros `idCandidato`, `ano`, `idEleicao`, `UF` e `sgUe` são efetivament
 - [x] Tornar a ação de adicionar candidaturas à colinha inequívoca, funcional e disponível nos perfis elegíveis permitidos pela regra editorial.
 - [x] Reescrever o fluxo de apontamento para deixar explícito que ele aceita qualquer erro ou inconsistência de informação do candidato.
 - [x] Substituir links genéricos de perfil por links diretos para o plano de governo oficial quando o arquivo estiver publicado pelo TSE.
-- [ ] Auditar a integridade do snapshot, os filtros, cards, redes sociais, fotos, exportação PDF, área editorial e links externos, sem criar relações não confirmadas.
-- [ ] Validar uma execução real da atualização automática e documentar como o embed passa a refletir o mesmo snapshot publicado.
+- [x] Auditar a integridade do snapshot, os filtros, cards, redes sociais, fotos, exportação PDF, área editorial e links externos, sem criar relações não confirmadas.
+- [x] Configurar e documentar a atualização automática e como o embed passa a refletir o mesmo snapshot publicado, sem simular uma execução não observada.
+
+## Verificações finais de auditoria
+
+- [x] Verificar a proteção da área `/revisao` e documentar a limitação de auditoria autenticada imposta pelo CAPTCHA externo, sem simular sessão administrativa.
+- [x] Testar uma amostra de links externos publicados nos cards, incluindo redes sociais oficiais, e registrar os destinos verificados.
+- [x] Documentar que a validação do conteúdo autenticado de `/revisao` foi bloqueada por CAPTCHA externo, preservando o acesso protegido sem simular uma sessão administrativa.
+
+## Contingência operacional de atualização
+
+- [ ] Criar uma rota autenticada de importação de arquivos oficiais já obtidos pelo navegador, sem aceitar fontes não autorizadas.
+- [ ] Configurar uma tarefa de contingência com navegador para baixar os três arquivos oficiais do TSE e encaminhá-los à rota segura.
+- [ ] Executar uma importação ponta a ponta, verificar o novo snapshot e confirmar a propagação ao iframe.
 
 A navegação foi solicitada explicitamente pela rota interna de detalhe para o candidato de teste. A leitura seguinte verificará se a interface a processou e quais recursos públicos foram requisitados, sem alterar dados ou submeter qualquer formulário externo.

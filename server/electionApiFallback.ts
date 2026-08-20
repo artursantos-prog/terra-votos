@@ -28,24 +28,38 @@ function normalize(value: string) {
   return value.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toUpperCase().trim();
 }
 
-async function collectInBatches<T>(items: T[], operation: (item: T) => Promise<void>, concurrency = 8) {
+async function collectInBatches<T>(items: T[], operation: (item: T) => Promise<void>, concurrency = 2) {
   let cursor = 0;
   await Promise.all(Array.from({ length: Math.min(concurrency, items.length) }, async () => {
     while (cursor < items.length) await operation(items[cursor++]);
   }));
 }
 
-/** Fonte de contingência oficial: listagem pública por UF e cargo do TSE. */
-export async function buildElectionSnapshotFromPublicApi(previous: ElectionSnapshot): Promise<ElectionSnapshot> {
-  const previousById = new Map(previous.candidaturas.map((candidate) => [candidate.id, candidate]));
-  const candidates: PublicCandidate[] = [];
-  await collectInBatches(API_OFFICES, async ({ uf, code, cargo }) => {
+async function fetchPublicList(uf: string, code: number) {
+  let lastStatus = 0;
+  for (let attempt = 0; attempt < 4; attempt += 1) {
     const response = await fetch(`https://divulgacandcontas.tse.jus.br/divulga/rest/v1/candidatura/listar/2026/${uf}/${ELECTION_ID}/${code}/candidatos`, {
-      headers: { accept: "application/json", "user-agent": "TerraEleicoesDataBot/1.0" },
+      headers: {
+        accept: "application/json",
+        "accept-language": "pt-BR,pt;q=0.9",
+        "user-agent": "Mozilla/5.0 (compatible; TerraEleicoesDataBot/1.0)",
+      },
       signal: AbortSignal.timeout(30_000),
     });
-    if (!response.ok) throw new Error(`API pública do TSE indisponível para ${uf}/${code} (HTTP ${response.status})`);
-    const data = await response.json() as TSEListCandidate[] | { candidatos?: TSEListCandidate[] };
+    if (response.ok) return response.json() as Promise<TSEListCandidate[] | { candidatos?: TSEListCandidate[] }>;
+    lastStatus = response.status;
+    if (![403, 429, 500, 502, 503, 504].includes(response.status)) break;
+    await new Promise((resolve) => setTimeout(resolve, 1_000 * (attempt + 1)));
+  }
+  throw new Error(`API pública do TSE indisponível para ${uf}/${code} (HTTP ${lastStatus})`);
+}
+
+/** Fonte de contingência oficial: listagem pública por UF e cargo do TSE. */
+export async function buildElectionSnapshotFromPublicApi(previous?: ElectionSnapshot): Promise<ElectionSnapshot> {
+  const previousById = new Map((previous?.candidaturas ?? []).map((candidate) => [candidate.id, candidate]));
+  const candidates: PublicCandidate[] = [];
+  await collectInBatches(API_OFFICES, async ({ uf, code, cargo }) => {
+    const data = await fetchPublicList(uf, code);
     const items = Array.isArray(data) ? data : data.candidatos ?? [];
     for (const item of items) {
       const id = String(item.id ?? "");

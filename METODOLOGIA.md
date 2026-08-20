@@ -16,9 +16,9 @@ O buscador permite localizar candidaturas e números de urna nas eleições gera
 
 ## Atualização e continuidade
 
-O conjunto **Candidatos — 2026** do Portal de Dados Abertos do TSE informa frequência de atualização de **quatro vezes ao dia**. O projeto realiza duas verificações diárias da fonte, em horários espaçados. Cada execução cria um registro interno de resultado; somente uma consolidação completa e validada substitui o snapshot público anterior. Se o TSE ou seu CDN não responder, a aplicação preserva o último snapshot válido e registra a falha para revisão privada.
+O conjunto **Candidatos — 2026** do Portal de Dados Abertos do TSE informa frequência de atualização de **quatro vezes ao dia**. O projeto realiza duas verificações diárias, às **09h e 21h (horário de Brasília)**. Cada execução cria um registro interno de resultado; somente uma consolidação completa e validada substitui o snapshot público anterior. Se o ZIP público do TSE ou seu CDN não responder, a rotina utiliza a API pública do DivulgaCandContas como fonte oficial de contingência, preservando redes sociais e documentos já confirmados. Se nenhuma fonte puder ser validada, a aplicação mantém o último snapshot válido e registra a falha para revisão privada.
 
-Essa regra impede que uma indisponibilidade temporária da fonte apague candidaturas, fotos ou vínculos já publicados. Como os dados eleitorais são dinâmicos, uma alteração pode aparecer primeiro no DivulgaCandContas e apenas depois no próximo pacote de dados abertos; a data e o horário da última sincronização devem ser considerados ao interpretar os resultados.
+Essa regra impede que uma indisponibilidade temporária da fonte apague candidaturas, fotos ou vínculos já publicados. Como os dados eleitorais são dinâmicos, uma alteração pode aparecer primeiro no DivulgaCandContas e apenas depois no próximo pacote de dados abertos; a data e o horário da última sincronização devem ser considerados ao interpretar os resultados. O embed mantém a URL publicada do buscador: novas visitas recebem o snapshot ativo e iframes que já estiverem abertos verificam a versão ativa a cada cinco minutos ou quando recebem foco, sem troca de snippet no portal Terra.
 
 ## Transparência, privacidade e revisão
 

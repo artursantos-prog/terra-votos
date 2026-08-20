@@ -25,3 +25,21 @@ Foi acionado o item **Proposta de Governo** na página oficial do TSE. O portal 
 O caminho de PDF formado diretamente a partir do nome interno do ZIP de propostas retornou **404** no CDN do TSE. Portanto, ele não será usado nem será exibido ao público.
 
 Uma coleta executada dentro do próprio domínio do DivulgaCandContas consultou 211 candidaturas a Presidente e Governador. O TSE retornou um arquivo com `codTipo` igual a `5` para 204 delas; sete candidaturas não retornaram proposta nessa consulta. Os 204 links serão montados exclusivamente pelo endpoint público `rest/arquivo/doc/{idArquivo}` confirmado acima.
+
+## Verificação de fluxos públicos
+
+Foram validados no navegador os filtros por cargo, a seleção de candidatura na colinha, a persistência local da seleção e a exportação de um PDF. O PDF gerado continha a candidatura selecionada, número de urna, partido e UF. O botão de reporte abre a janela **“Reportar erro ou inconsistência”** e enumera os campos que podem ser apontados para revisão. A área `/revisao` exige autenticação antes de expor o painel privado.
+
+O card presidencial foi testado com a URL `rest/arquivo/doc/280017113380`; a ação baixou um PDF do TSE, confirmando que o botão abre o documento, e não apenas o perfil do candidato. O iframe passou a consultar o snapshot ativo a cada cinco minutos e ao receber foco, de modo que o mesmo snippet de embed passa a refletir a nova base após uma sincronização publicada.
+
+## Amostra de destinos externos e limitação de painel
+
+Foram testadas duas URLs de redes sociais declaradas no arquivo oficial do TSE. A referência do Instagram de **Beatriz Cameli** foi encaminhada ao domínio `instagram.com` e à sua tela de acesso, comportamento esperado para conteúdo restrito pela plataforma. A URL de Facebook declarada para a candidatura de **Bira Vasconcelos** redirecionou para um perfil público no domínio `facebook.com`. Os links permaneceram URLs declaradas pelo TSE; a auditoria confirma o destino técnico, não autentica nem avalia a titularidade de conteúdos hospedados pelas plataformas.
+
+O endereço `/revisao` foi verificado como protegido: sem sessão, ele mostra apenas a entrada de autenticação e não expõe a fila editorial. A inspeção do conteúdo autenticado não foi executada porque o provedor de identidade solicitou um CAPTCHA externo. Nenhuma credencial foi simulada e nenhum dado foi criado ou alterado para contornar essa proteção.
+
+## Atualização recorrente e embed
+
+A tarefa recorrente ativa `eleicoes-2026-sync-v2` está configurada para `0 0 0,12 * * *` (UTC), equivalente a **09h e 21h BRT**, e chama `POST /api/scheduled/election-sync`. A configuração persistida do projeto aponta para o mesmo identificador da tarefa. O endpoint está registrado antes das rotas tRPC e do servidor de arquivos estáticos; chamadas sem a credencial do agendador recebem `403`, como esperado. A última sincronização válida registrada permanece como snapshot ativo, portanto uma falha não substitui a base pública.
+
+A tentativa de observar uma execução de intervalo curto não gerou um evento de histórico dentro desta sessão, embora a tarefa regular esteja ativa e corretamente vinculada. Não foi simulada uma credencial de cron nem forçado um resultado. A próxima janela regular deve ser acompanhada pelo painel de tarefas do projeto; o histórico de sincronizações do painel editorial e `election_sync_runs` indicam o sucesso ou a falha. Quando houver sucesso, a URL pública do iframe não muda: novas visitas usam o snapshot ativo e iframes abertos o consultam em até cinco minutos.

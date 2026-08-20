@@ -46,7 +46,11 @@ O buscador carrega um JSON público, reduzido exclusivamente aos campos necessá
 
 ## Metodologia e atualização eleitoral
 
-As fotos são carregadas diretamente da rota pública de imagem do DivulgaCandContas, associada ao identificador de cada candidatura. A base é formada pelos arquivos públicos de candidaturas e informações complementares do TSE; o buscador mantém apenas candidaturas com situação de julgamento **Deferido** ou **Aguardando julgamento**. A fonte de dados abertos informa atualização quatro vezes por dia. A rotina do projeto é programada para duas verificações diárias e, se a fonte falhar, mantém a última base validada em vez de publicar uma base incompleta. A metodologia completa está em `METODOLOGIA.md`.
+As fotos são carregadas diretamente da rota pública de imagem do DivulgaCandContas, associada ao identificador de cada candidatura. A base é formada pelos arquivos públicos de candidaturas e informações complementares do TSE; o buscador mantém apenas candidaturas com situação de julgamento **Deferido** ou **Aguardando julgamento**. A fonte de dados abertos informa atualização diária. A rotina do projeto é programada para duas verificações diárias, às **09h e 21h (BRT)**. Se o ZIP oficial estiver temporariamente indisponível, a rotina consulta a API pública oficial do DivulgaCandContas; se nenhuma fonte puder ser validada, mantém a última base válida em vez de publicar uma base incompleta. A metodologia completa está em `METODOLOGIA.md`.
+
+### Como a atualização chega ao iframe
+
+O código de embed usa sempre o mesmo domínio publicado, sem apontar para um arquivo JSON com versão fixa. Em uma sincronização bem-sucedida, a aplicação registra e passa a servir um novo snapshot ativo. Assim, **não é necessário trocar o snippet no portal Terra**: novas visitas ao iframe já carregam a versão ativa e iframes que já estiverem abertos consultam a versão ativa a cada cinco minutos — além de refazerem a consulta quando recebem foco. O painel privado registra o histórico de execuções e a hora da última atualização válida.
 
 ## Publicação
 

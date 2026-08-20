@@ -143,7 +143,11 @@ function exportColinha(candidates: Candidate[]) {
 export default function Home() {
   const [, setLocation] = useLocation();
   const { user } = useAuth();
-  const snapshot = trpc.election.snapshot.useQuery();
+  const snapshot = trpc.election.snapshot.useQuery(undefined, {
+    refetchInterval: 5 * 60_000,
+    refetchIntervalInBackground: true,
+    refetchOnWindowFocus: true,
+  });
   const [candidates, setCandidates] = useState<Candidate[]>([]);
   const [loadingCandidates, setLoadingCandidates] = useState(true);
   const [loadError, setLoadError] = useState(false);
