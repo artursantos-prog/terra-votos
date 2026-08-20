@@ -42,6 +42,8 @@ O endereço `/revisao` foi verificado como protegido: sem sessão, ele mostra ap
 
 A tarefa recorrente ativa `eleicoes-2026-sync-v2` está configurada para `0 0 0,12 * * *` (UTC), equivalente a **09h e 21h BRT**, e chama `POST /api/scheduled/election-sync`. A configuração persistida do projeto aponta para o mesmo identificador da tarefa. O endpoint está registrado antes das rotas tRPC e do servidor de arquivos estáticos; chamadas sem a credencial do agendador recebem `403`, como esperado. A última sincronização válida registrada permanece como snapshot ativo, portanto uma falha não substitui a base pública.
 
+Após a revisão final da configuração, a tarefa assistida `Sincronização eleitoral assistida` foi confirmada como **ativa**, em modo **full_auto**, com cron `0 0 0,12 * * *` e playbook restrito aos três arquivos oficiais do TSE. Ela cria uma execução isolada a cada ciclo, usa o navegador para contornar bloqueios pontuais ao CDN no servidor e publica somente uma importação cujo endpoint responda com sucesso.
+
 A tentativa de observar uma execução de intervalo curto não gerou um evento de histórico dentro desta sessão, embora a tarefa regular esteja ativa e corretamente vinculada. Não foi simulada uma credencial de cron nem forçado um resultado. A próxima janela regular deve ser acompanhada pelo painel de tarefas do projeto; o histórico de sincronizações do painel editorial e `election_sync_runs` indicam o sucesso ou a falha. Quando houver sucesso, a URL pública do iframe não muda: novas visitas usam o snapshot ativo e iframes abertos o consultam em até cinco minutos.
 
 ## Importação oficial ponta a ponta
