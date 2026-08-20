@@ -6,7 +6,7 @@ import { adminProcedure, publicProcedure, router } from "./_core/trpc";
 import * as db from "./db";
 import { synchronizeElectionSnapshot } from "./electionSync";
 
-const fallbackDataUrl = "/manus-storage/candidatos-eleicoes-2026_e00d62a4.json";
+const fallbackDataUrl = "/manus-storage/candidatos-eleicoes-2026_1118210b.json";
 
 export const appRouter = router({
     // if you need to use socket.io, read and register route in server/_core/index.ts, all api should start with '/api/' so that the gateway can route correctly

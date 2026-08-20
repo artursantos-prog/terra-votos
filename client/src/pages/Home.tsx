@@ -35,14 +35,18 @@ type Candidate = {
   fotoUrl: string;
   redesSociais?: string[];
   titular?: { id: string; nome: string; cargo: string };
+  vinculoChapaIndisponivel?: boolean;
   pesquisa: string;
 };
 
 type CandidateResponse = { candidaturas?: Candidate[]; candidatos?: Candidate[] };
 
-const FALLBACK_DATA_URL = "/manus-storage/candidatos-eleicoes-2026_e00d62a4.json";
+const FALLBACK_DATA_URL = "/manus-storage/candidatos-eleicoes-2026_1118210b.json";
 const PAGE_SIZE = 12;
 const STORAGE_KEY = "terra-eleicoes-colinha-2026";
+const ELECTION_ID = "20322002026";
+const PLAN_OFFICES = new Set(["PRESIDENTE", "GOVERNADOR"]);
+const FEATURED_OFFICES = ["PRESIDENTE", "GOVERNADOR", "SENADOR", "DEPUTADO FEDERAL", "DEPUTADO ESTADUAL", "DEPUTADO DISTRITAL"];
 
 const STATE_NAMES: Record<string, string> = {
   AC: "Acre", AL: "Alagoas", AM: "Amazonas", AP: "Amapá", BA: "Bahia", BR: "Brasil", CE: "Ceará", DF: "Distrito Federal", ES: "Espírito Santo", GO: "Goiás", MA: "Maranhão", MG: "Minas Gerais", MS: "Mato Grosso do Sul", MT: "Mato Grosso", PA: "Pará", PB: "Paraíba", PE: "Pernambuco", PI: "Piauí", PR: "Paraná", RJ: "Rio de Janeiro", RN: "Rio Grande do Norte", RO: "Rondônia", RR: "Roraima", RS: "Rio Grande do Sul", SC: "Santa Catarina", SE: "Sergipe", SP: "São Paulo", TO: "Tocantins",
@@ -54,6 +58,12 @@ function normalizeSearch(value: string) {
 
 function isSelectable(candidate: Candidate) {
   return !candidate.cargo.includes("SUPLENTE") && !candidate.cargo.startsWith("VICE-");
+}
+
+function getOfficialProposalProfile(candidate: Candidate) {
+  if (!PLAN_OFFICES.has(candidate.cargo)) return null;
+  const ue = candidate.uf === "BR" ? "BR" : candidate.uf;
+  return `https://divulgacandcontas.tse.jus.br/divulga/#/candidato/${ue}/${ue}/${ELECTION_ID}/${candidate.id}/2026/${ue}`;
 }
 
 function OptionSelect({ label, value, onChange, options }: { label: string; value: string; onChange: (value: string) => void; options: { label: string; value: string }[] }) {
@@ -72,6 +82,7 @@ function OptionSelect({ label, value, onChange, options }: { label: string; valu
 
 function CandidateCard({ candidate, index, selected, onToggle, onReport }: { candidate: Candidate; index: number; selected: boolean; onToggle: () => void; onReport: () => void }) {
   const selectable = isSelectable(candidate);
+  const proposalProfile = getOfficialProposalProfile(candidate);
   return (
     <article className="candidate-card" style={{ "--card-index": index } as React.CSSProperties}>
       <div className="candidate-topline" />
@@ -81,7 +92,9 @@ function CandidateCard({ candidate, index, selected, onToggle, onReport }: { can
         <div className="candidate-photo"><span>Foto</span><img src={candidate.fotoUrl} alt={`Foto de ${candidate.nome}`} loading="lazy" onError={(event) => { event.currentTarget.style.display = "none"; }} /></div>
       </div>
       {candidate.titular && <p className="linked-ticket">Vinculado a <b>{candidate.titular.nome}</b> · {candidate.titular.cargo.toLowerCase()}</p>}
+      {candidate.vinculoChapaIndisponivel && <p className="linked-ticket linked-ticket-unavailable">Composição da chapa não identificada de forma única na base oficial.</p>}
       {candidate.redesSociais && candidate.redesSociais.length > 0 && <div className="social-links">{candidate.redesSociais.slice(0, 2).map((url) => <a key={url} href={url} target="_blank" rel="noreferrer">Rede oficial <ArrowUpRight size={11} /></a>)}</div>}
+      {proposalProfile && <a className="proposal-link" href={proposalProfile} target="_blank" rel="noreferrer">Ler plano de governo no TSE <ArrowUpRight size={12} /></a>}
       <div className="candidate-number" aria-label={`Número de urna ${candidate.numero}`}><span>Número</span><strong>{candidate.numero}</strong></div>
       <div className="candidate-bottomline"><span>{candidate.situacao}</span><ShieldCheck aria-hidden="true" size={16} /></div>
       <div className="candidate-actions">
@@ -157,6 +170,7 @@ export default function Home() {
   const stateOptions = useMemo(() => [{ label: "Todos os estados", value: "" }, ...Array.from(new Set(candidates.map((candidate) => candidate.uf))).sort((a, b) => (STATE_NAMES[a] ?? a).localeCompare(STATE_NAMES[b] ?? b, "pt-BR")).map((uf) => ({ label: `${STATE_NAMES[uf] ?? uf} (${uf})`, value: uf }))], [candidates]);
   const partyOptions = useMemo(() => [{ label: "Todos os partidos", value: "" }, ...Array.from(new Set(candidates.map((candidate) => candidate.partido))).sort().map((item) => ({ label: item, value: item }))], [candidates]);
   const officeOptions = useMemo(() => [{ label: "Todos os cargos", value: "" }, ...Array.from(new Set(candidates.map((candidate) => candidate.cargo))).sort((a, b) => a.localeCompare(b, "pt-BR")).map((item) => ({ label: item, value: item }))], [candidates]);
+  const featuredOffices = useMemo(() => FEATURED_OFFICES.filter((item) => candidates.some((candidate) => candidate.cargo === item)), [candidates]);
   const filteredCandidates = useMemo(() => { const normalizedQuery = normalizeSearch(query); return candidates.filter((candidate) => (!normalizedQuery || candidate.pesquisa.includes(normalizedQuery)) && (!state || candidate.uf === state) && (!party || candidate.partido === party) && (!office || candidate.cargo === office)); }, [candidates, office, party, query, state]);
   const selectedCandidates = useMemo(() => candidates.filter((candidate) => selectedIds.has(candidate.id)), [candidates, selectedIds]);
   useEffect(() => setPage(1), [query, state, party, office]);
@@ -168,7 +182,7 @@ export default function Home() {
     <header className="site-header" aria-label="Cabeçalho Eleições no Terra"><div className="brand-lockup"><img src="/manus-storage/terra-election-mark_debb05e3.png" alt="" className="brand-mark" /><div className="brand-name"><span>eleições</span><span>no terra</span><b>PRIMEIRO TURNO</b></div></div><div className="header-rule" /><div className="header-tools">{user?.role === "admin" && <Link href="/revisao">Revisão</Link>}<div className="powered-by"><span>Powered by</span><strong>terra</strong></div></div></header>
     <div className="intro-panel"><div className="intro-copy"><p className="eyebrow">Eleições 2026</p><h1>Buscador de candidatos</h1><p>Consulte candidaturas deferidas ou aguardando julgamento, partidos e números de urna.</p></div><div className="intro-data"><strong>{loadingCandidates ? "…" : candidates.length.toLocaleString("pt-BR")}</strong><span>candidaturas<br />aptas na base</span></div></div>
     <section className="trust-strip"><ShieldCheck size={17} /><span>{snapshot.data?.filter ?? "Deferido ou Aguardando julgamento"}</span><span className="trust-divider">•</span><span>{snapshot.data?.updatedAt ? `Atualizado em ${new Date(snapshot.data.updatedAt).toLocaleString("pt-BR")}` : "Base oficial em consolidação"}</span></section>
-    <section className="search-panel" aria-label="Filtros de candidatos"><div className="search-panel-heading"><div><p className="section-kicker"><SlidersHorizontal size={15} /> Busca refinada</p><h2>Encontre quem você procura</h2></div>{hasFilters && <button className="clear-button" type="button" onClick={clearFilters}><X size={15} /> Limpar filtros</button>}</div><div className="filters-grid"><label className="search-field"><span>Nome ou número</span><div><Search size={18} /><input type="search" value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Digite o nome ou número" /></div></label><OptionSelect label="Estado" value={state} onChange={setState} options={stateOptions} /><OptionSelect label="Partido" value={party} onChange={setParty} options={partyOptions} /><OptionSelect label="Cargo" value={office} onChange={setOffice} options={officeOptions} /></div></section>
+    <section className="search-panel" aria-label="Filtros de candidatos"><div className="search-panel-heading"><div><p className="section-kicker"><SlidersHorizontal size={15} /> Busca refinada</p><h2>Encontre quem você procura</h2></div>{hasFilters && <button className="clear-button" type="button" onClick={clearFilters}><X size={15} /> Limpar filtros</button>}</div><div className="filters-grid"><label className="search-field"><span>Nome ou número</span><div><Search size={18} /><input type="search" value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Digite o nome ou número" /></div></label><OptionSelect label="Estado" value={state} onChange={setState} options={stateOptions} /><OptionSelect label="Partido" value={party} onChange={setParty} options={partyOptions} /><OptionSelect label="Cargo em disputa" value={office} onChange={setOffice} options={officeOptions} /></div><div className="office-chooser"><span>Ou selecione diretamente o cargo que procura</span><div>{featuredOffices.map((item) => <button key={item} type="button" className={office === item ? "office-chip selected" : "office-chip"} onClick={() => setOffice(item)}>{item}</button>)}</div></div></section>
     <section className="colinha-bar"><div><p className="section-kicker"><Bookmark size={14} /> Minha colinha</p><strong>{selectedCandidates.length} perfil{selectedCandidates.length === 1 ? "" : "is"} selecionado{selectedCandidates.length === 1 ? "" : "s"}</strong><span>Escolha candidatos titulares e baixe a lista para imprimir.</span></div><div className="colinha-actions"><button type="button" className="secondary-action" onClick={() => setSelectedIds(new Set())} disabled={!selectedCandidates.length}>Limpar</button><button type="button" className="primary-action" onClick={() => exportColinha(selectedCandidates)} disabled={!selectedCandidates.length}><FileDown size={17} /> Baixar PDF</button></div></section>
     <section className="results-section" aria-live="polite"><div className="results-header"><div><p className="section-kicker">Resultados da busca</p><h2>{loadingCandidates ? "Carregando candidaturas…" : `${filteredCandidates.length.toLocaleString("pt-BR")} candidatura${filteredCandidates.length === 1 ? "" : "s"}`}</h2></div>{!loadingCandidates && filteredCandidates.length > 0 && <p>Exibindo {pageStart + 1}–{Math.min(pageStart + PAGE_SIZE, filteredCandidates.length)} de {filteredCandidates.length.toLocaleString("pt-BR")}</p>}</div>
       {loadingCandidates && <div className="status-card loading-card"><Loader2 className="spinner" size={24} /><div><strong>Preparando a base eleitoral</strong><span>Isso pode levar alguns segundos na primeira visita.</span></div></div>}
@@ -177,6 +191,6 @@ export default function Home() {
       {!loadingCandidates && !loadError && visibleCandidates.length === 0 && <div className="empty-state"><span>Nenhuma candidatura encontrada</span><p>Revise o nome digitado ou experimente remover algum filtro.</p><button type="button" onClick={clearFilters}>Limpar a busca</button></div>}
       {!loadingCandidates && !loadError && filteredCandidates.length > PAGE_SIZE && <nav className="pagination" aria-label="Paginação dos resultados"><button type="button" onClick={() => setPage((current) => Math.max(1, current - 1))} disabled={page === 1}><ChevronLeft size={19} /></button><span>Página <b>{page}</b> de {totalPages}</span><button type="button" onClick={() => setPage((current) => Math.min(totalPages, current + 1))} disabled={page === totalPages}><ChevronRight size={19} /></button></nav>}
     </section>
-    <footer className="site-footer"><div><p>Fonte: Dados Abertos e DivulgaCandContas — TSE.</p><span>As informações exibidas seguem a última sincronização válida disponível.</span></div><button type="button" onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}>Voltar aos filtros <ArrowUpRight size={18} /></button></footer>
+    <footer className="site-footer"><div><p>Fonte: Dados Abertos e DivulgaCandContas — TSE.</p><span>Base filtrada por situação de julgamento; atualização programada duas vezes ao dia, com preservação da última versão válida.</span><a className="methodology-link" href="/METODOLOGIA.md" target="_blank" rel="noreferrer">Ver metodologia e fontes <ArrowUpRight size={13} /></a></div><button type="button" onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}>Voltar aos filtros <ArrowUpRight size={18} /></button></footer>
   </section>{reportCandidate && <ReportDialog candidate={reportCandidate} onClose={() => setReportCandidate(null)} />}</main>;
 }

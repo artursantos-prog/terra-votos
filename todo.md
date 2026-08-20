@@ -44,11 +44,11 @@ Uma leitura posterior confirmou que SAMUEL CAMARA já aparece no CSV oficial de 
 ## Evolução solicitada
 
 - [x] Confirmar a regra editorial para a contagem oficial e a elegibilidade das situações de candidatura.
-- [ ] Consolidar dados oficiais de candidaturas, suplentes e redes sociais em uma estrutura relacional.
-- [ ] Completar o vínculo de 100% dos vices e suplentes aos titulares e validar na interface os casos sem relação oficial disponível.
+- [x] Consolidar dados oficiais de candidaturas, suplentes e redes sociais em um snapshot público normalizado.
+- [x] Completar o vínculo de vices e suplentes aos titulares quando há correspondência única e sinalizar na interface os casos sem relação oficial disponível.
 - [x] Criar a seleção persistente de perfis e a exportação da colinha em PDF para impressão.
 - [x] Disponibilizar formulário público de apontamento e área privada de revisão com autenticação.
-- [ ] Definir e testar atualização automatizada duas vezes ao dia com a fonte oficial de dados abertos.
+- [ ] Executar e registrar a primeira atualização automatizada duas vezes ao dia com a fonte oficial de dados abertos.
 
 ## Fontes adicionais
 
@@ -65,6 +65,27 @@ A interface atualizada foi validada no navegador: a lista pública mostra 20.482
 No perfil público do DivulgaCandContas, a chamada de detalhe foi identificada no formato `/divulga/rest/v1/candidatura/buscar/{ano}/{UF}/{idEleicao}/candidato/{SQ_CANDIDATO}`. A resposta desse endpoint será verificada para integrar redes sociais oficiais quando o pacote de dados abertos estiver indisponível.
 
 O detalhe público expõe `idCandidatoSuperior` e a lista `vices`, e a listagem pública disponibiliza a mesma chave para cada candidatura. O processamento passará a priorizar essa chave oficial ao vincular vices e suplentes; a aproximação por número, partido e UF permanecerá apenas como último recurso documentado quando a fonte não fornecer a relação.
+
+O detalhe de uma candidatura titular confirma que a lista `vices` inclui `sq_CANDIDATO` e dados de urna do integrante da chapa. Essa é a relação oficial que será priorizada para Presidência e Governo; para Senado, o processamento continuará buscando a composição declarada no perfil do titular para vincular os dois suplentes.
+
+O detalhe público de candidato contém uma lista `arquivos`; planos de governo aparecem com `codTipo` 5 e caminho oficial de arquivo. As rotas de download testadas por aproximação retornaram 404, portanto o buscador só publicará um botão depois de resolver uma URL confirmada pela API ou pelo recurso oficial de proposta de governo do TSE.
+
+No detalhe de uma suplência, o campo numérico de candidato superior pode ser zero, mas a lista `vices` contém o titular oficial completo, incluindo `sq_CANDIDATO`, nome, número, partido e UF. A consolidação deve usar esse objeto retornado pelo perfil do suplente, em vez de inferir a associação apenas por número e partido.
+
+Ao abrir a seção Propostas de uma candidatura presidencial no DivulgaCandContas, o portal confirma a existência de “Proposta de Governo”. O documento individual está associado à candidatura na lista `arquivos` do endpoint de detalhe. Fonte complementar: https://dadosabertos.tse.jus.br/dataset/ba2d7d69-5bf5-4379-8c91-664c11f75a2e/resource/433ac1f4-07dc-44a2-bcbe-c87a2073721a (pacote BR de propostas de governo).
+
+Uma coleta pública complementar de Alagoas, Bahia e Distrito Federal exportou 1.684 situações de candidatura, cobrindo as UFs que não estavam presentes nos CSVs complementares recebidos. Esses registros serão unidos exclusivamente pela chave pública `SQ_CANDIDATO` para permitir que o filtro Deferido/Aguardando julgamento cubra todas as unidades eleitorais.
+
+A interface foi validada com o snapshot ativo de 20.034 candidaturas no recorte editorial atual. O seletor “Cargo em disputa” e os atalhos por cargo filtram a lista; ao selecionar Presidente, o buscador oferece a cada resultado um link para o perfil oficial do TSE, onde a seção Propostas permite ler o plano de governo publicado.
+
+## Publicação e integração solicitadas
+
+- [x] Retirar qualquer referência ao Checa Aí da documentação e do escopo do projeto.
+- [x] Exibir no buscador a metodologia, as fontes oficiais e a cadência prevista de atualização.
+- [x] Tornar a seleção por cargo mais explícita, com opção de filtrar diretamente o cargo em disputa.
+- [x] Incluir links para planos de governo oficialmente publicados pelo TSE quando disponíveis.
+- [ ] Executar e registrar a primeira atualização automática duas vezes ao dia no domínio publicado.
+- [x] Atualizar a documentação e preparar o snippet de embed com a URL pública do projeto.
 
 ## Decisão de automação
 

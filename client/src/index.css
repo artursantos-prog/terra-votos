@@ -68,6 +68,11 @@ button:disabled { cursor: not-allowed; }
 .select-wrap { position: relative; padding-right: 8px; }
 .select-wrap select { appearance: none; cursor: pointer; padding-right: 20px; }
 .select-wrap svg { position: absolute; right: 11px; color: var(--terra-orange); pointer-events: none; }
+.office-chooser { display: grid; gap: 9px; margin-top: 19px; padding-top: 17px; border-top: 1px solid #f1e8e4; }
+.office-chooser > span { color: #756b67; font-size: 10px; font-weight: 800; letter-spacing: .82px; text-transform: uppercase; }
+.office-chooser > div { display: flex; flex-wrap: wrap; gap: 7px; }
+.office-chip { min-height: 31px; border: 1px solid #e8d9d1; padding: 0 10px; color: #6d5e58; background: #fffaf7; font-size: 10px; font-weight: 800; letter-spacing: .2px; text-transform: uppercase; transition: background .16s ease, border-color .16s ease, color .16s ease; }
+.office-chip:hover, .office-chip.selected { border-color: var(--terra-orange); color: #fff; background: var(--terra-orange); }
 
 .results-section { padding: 43px 0 44px; }
 .results-header { padding: 0 1px 20px; border-bottom: 1px solid var(--terra-line); }
@@ -87,8 +92,11 @@ button:disabled { cursor: not-allowed; }
 .candidate-photo img { position: relative; z-index: 1; width: 100%; height: 100%; object-fit: cover; object-position: center top; }
 .linked-ticket { min-height: 20px; margin: 11px 0 0; color: #675d58; font-size: 10px; line-height: 1.35; }
 .linked-ticket b { color: var(--terra-ink); }
+.linked-ticket-unavailable { color: #8a5a27; }
 .social-links { display: flex; flex-wrap: wrap; gap: 7px; min-height: 20px; margin-top: 8px; }
 .social-links a { display: inline-flex; align-items: center; gap: 2px; color: #a04815; font-size: 9px; font-weight: 800; text-decoration: none; }
+.proposal-link { display: inline-flex; align-items: center; gap: 4px; width: fit-content; margin-top: 9px; color: #9b4012; font-size: 10px; font-weight: 800; text-decoration: none; }
+.proposal-link:hover { color: var(--terra-orange); text-decoration: underline; text-underline-offset: 3px; }
 .candidate-number { display: flex; align-items: baseline; justify-content: space-between; gap: 8px; margin-top: auto; padding-top: 19px; }
 .candidate-number span { color: #8c817d; font-size: 10px; font-weight: 800; text-transform: uppercase; letter-spacing: .8px; }
 .candidate-number strong { color: var(--terra-orange); font-family: var(--serif); font-size: 37px; letter-spacing: -2.5px; line-height: .9; }
@@ -175,6 +183,7 @@ button:disabled { cursor: not-allowed; }
 .site-footer { display: flex; align-items: flex-end; justify-content: space-between; gap: 30px; min-height: 157px; margin: 0 -32px; padding: 36px 32px; border-top: 1px solid #f1e7e2; background: #fff9f5 url("/manus-storage/terra-ballot-pattern_3f726ea4.png") right bottom/520px auto no-repeat; }
 .site-footer p { margin: 0 0 5px; color: #857b77; font-size: 11px; font-style: italic; }
 .site-footer span { color: #a29995; font-size: 10px; }
+.methodology-link { display: inline-flex; align-items: center; gap: 4px; margin-top: 9px; color: var(--terra-orange); font-size: 10px; font-weight: 800; text-decoration: none; }
 .site-footer button { display: inline-flex; align-items: center; gap: 28px; min-width: 235px; justify-content: center; border: 0; border-radius: 3px; padding: 14px 17px; background: var(--terra-orange); color: #fff; font-size: 13px; font-weight: 800; box-shadow: 0 7px 15px rgba(255, 90, 0, .15); transition: background .15s ease, transform .15s ease; }
 .site-footer button:hover { background: var(--terra-orange-deep); transform: translateY(-1px); }
 .site-footer button:active { transform: scale(.97); }
@@ -183,5 +192,5 @@ button:disabled { cursor: not-allowed; }
 @keyframes spin { to { transform: rotate(360deg); } }
 
 @media (max-width: 1080px) { .candidate-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); } .filters-grid { grid-template-columns: 1.5fr 1fr 1fr; } .filters-grid > :last-child { grid-column: span 1; } }
-@media (max-width: 760px) { .editorial-shell { padding: 20px 17px 0; } .site-header { gap: 12px; } .header-tools { gap: 10px; } .brand-name { font-size: 15px; } .brand-mark { width: 28px; height: 28px; } .header-rule { height: 7px; } .powered-by strong { font-size: 23px; } .intro-panel { margin-top: 24px; padding: 34px 23px 28px; align-items: flex-start; flex-direction: column; min-height: auto; } .intro-data { padding: 0; } .intro-data strong { font-size: 38px; } .search-panel { margin-top: 16px; padding: 23px 18px; } .search-panel-heading { align-items: flex-start; } .search-panel h2 { font-size: 21px; } .filters-grid { grid-template-columns: 1fr; gap: 15px; } .colinha-bar { align-items: flex-start; flex-direction: column; gap: 13px; } .colinha-actions { width: 100%; } .colinha-actions button { flex: 1; } .results-section { padding-top: 32px; } .results-header { align-items: flex-start; flex-direction: column; gap: 5px; } .results-header h2 { font-size: 25px; } .candidate-grid { grid-template-columns: 1fr; gap: 12px; } .candidate-card { min-height: 258px; } .site-footer { align-items: flex-start; flex-direction: column; min-height: 190px; margin: 0 -17px; padding: 31px 17px; background-size: 400px auto; } .site-footer button { width: 100%; } .report-dialog { padding: 24px 19px; } .admin-shell { padding: 20px 6px; }.admin-header { align-items: flex-start; flex-direction: column; }.admin-header h1 { font-size: 30px; }.admin-grid, .admin-report { grid-template-columns: 1fr; }.admin-report { gap: 12px; }.admin-tabs { overflow: auto; }.admin-tabs a { white-space: nowrap; } }
+@media (max-width: 760px) { .editorial-shell { padding: 20px 17px 0; } .site-header { gap: 12px; } .header-tools { gap: 10px; } .brand-name { font-size: 15px; } .brand-mark { width: 28px; height: 28px; } .header-rule { height: 7px; } .powered-by strong { font-size: 23px; } .intro-panel { margin-top: 24px; padding: 34px 23px 28px; align-items: flex-start; flex-direction: column; min-height: auto; } .intro-data { padding: 0; } .intro-data strong { font-size: 38px; } .search-panel { margin-top: 16px; padding: 23px 18px; } .search-panel-heading { align-items: flex-start; } .search-panel h2 { font-size: 21px; } .filters-grid { grid-template-columns: 1fr; gap: 15px; } .office-chooser > div { gap: 6px; } .office-chip { font-size: 9px; padding: 0 8px; } .colinha-bar { align-items: flex-start; flex-direction: column; gap: 13px; } .colinha-actions { width: 100%; } .colinha-actions button { flex: 1; } .results-section { padding-top: 32px; } .results-header { align-items: flex-start; flex-direction: column; gap: 5px; } .results-header h2 { font-size: 25px; } .candidate-grid { grid-template-columns: 1fr; gap: 12px; } .candidate-card { min-height: 258px; } .site-footer { align-items: flex-start; flex-direction: column; min-height: 190px; margin: 0 -17px; padding: 31px 17px; background-size: 400px auto; } .site-footer button { width: 100%; } .report-dialog { padding: 24px 19px; } .admin-shell { padding: 20px 6px; }.admin-header { align-items: flex-start; flex-direction: column; }.admin-header h1 { font-size: 30px; }.admin-grid, .admin-report { grid-template-columns: 1fr; }.admin-report { gap: 12px; }.admin-tabs { overflow: auto; }.admin-tabs a { white-space: nowrap; } }
 @media (prefers-reduced-motion: reduce) { *, *::before, *::after { scroll-behavior: auto !important; animation-duration: .01ms !important; transition-duration: .01ms !important; } }

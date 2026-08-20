@@ -1,11 +1,11 @@
 # Embed — Buscador de Candidatos
 
-Após publicar este projeto, substitua `https://SEU-SUBDOMINIO.manus.space` pelo endereço público definitivo do buscador e insira o bloco abaixo na página do Terra.
+Use o endereço público publicado do buscador no bloco abaixo para inseri-lo em uma página do Terra.
 
 ```html
 <section class="terra-eleicoes-embed" aria-label="Buscador de candidatos">
   <iframe
-    src="https://SEU-SUBDOMINIO.manus.space"
+    src="https://candidatos-lqrmtjns.manus.space"
     title="Buscador de candidatos — Eleições no Terra"
     loading="lazy"
     referrerpolicy="strict-origin-when-cross-origin"
@@ -25,14 +25,14 @@ Após publicar este projeto, substitua `https://SEU-SUBDOMINIO.manus.space` pelo
   .terra-eleicoes-embed iframe {
     display: block;
     width: 100%;
-    min-height: 1180px;
+    min-height: 1320px;
     border: 0;
     background: #fffdfb;
   }
 
   @media (max-width: 760px) {
     .terra-eleicoes-embed iframe {
-      min-height: 1380px;
+      min-height: 1480px;
     }
   }
 </style>
@@ -40,14 +40,14 @@ Após publicar este projeto, substitua `https://SEU-SUBDOMINIO.manus.space` pelo
 
 ## Observações de integração
 
-O componente já contém a interface, os filtros, os cards com foto e a base pública processada. Não é necessário incluir arquivos CSS, JavaScript ou CSV adicionais na página hospedeira. O `iframe` é a opção mais segura para preservar o isolamento de estilos e scripts entre o portal e o buscador.
+O componente já contém a interface, os filtros por **nome ou número, estado, partido e cargo**, os cards com foto, a colinha exportável em PDF e a base pública processada. Não é necessário incluir arquivos CSS, JavaScript ou CSV adicionais na página hospedeira. O `iframe` preserva o isolamento de estilos e scripts entre o portal e o buscador.
 
 O buscador carrega um JSON público, reduzido exclusivamente aos campos necessários para o uso editorial: estado, cargo, nome de urna, nome completo, partido, número de urna, situação da candidatura e uma URL pública de foto. A chave técnica pública da candidatura é mantida apenas para renderização e associação estável dos cards; campos pessoais desnecessários existentes nos CSVs de origem não são publicados no navegador.
 
-## Fotos e atualização eleitoral
+## Metodologia e atualização eleitoral
 
-As fotos são carregadas diretamente da rota pública de imagem do DivulgaCandContas, associada ao identificador de cada candidatura. Isso evita armazenar milhares de imagens no projeto e mantém os cards alinhados ao acervo do TSE. A base atual foi consolidada a partir do arquivo oficial mais recente de candidaturas de 20/08/2026. O Portal de Dados Abertos informa atualização quatro vezes por dia; o DivulgaCandContas informa atualização a cada 60 minutos. Em uma checagem pontual, o portal exibiu quatro registros ainda não presentes no arquivo oficial; eles devem ser incorporados automaticamente no próximo ciclo do CSV do TSE.
+As fotos são carregadas diretamente da rota pública de imagem do DivulgaCandContas, associada ao identificador de cada candidatura. A base é formada pelos arquivos públicos de candidaturas e informações complementares do TSE; o buscador mantém apenas candidaturas com situação de julgamento **Deferido** ou **Aguardando julgamento**. A fonte de dados abertos informa atualização quatro vezes por dia. A rotina do projeto é programada para duas verificações diárias e, se a fonte falhar, mantém a última base validada em vez de publicar uma base incompleta. A metodologia completa está em `METODOLOGIA.md`.
 
 ## Publicação
 
-Antes de usar o código acima, publique o projeto pela interface de gerenciamento e use o domínio público disponibilizado após a publicação. O endereço de pré-visualização de desenvolvimento não deve ser incorporado no portal.
+Use exclusivamente o domínio público publicado. O endereço de pré-visualização de desenvolvimento não deve ser incorporado no portal.

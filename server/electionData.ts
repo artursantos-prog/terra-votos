@@ -21,6 +21,7 @@ export type PublicCandidate = {
   fotoUrl: string;
   redesSociais: string[];
   titular?: { id: string; nome: string; cargo: string };
+  vinculoChapaIndisponivel?: boolean;
   pesquisa: string;
 };
 
@@ -153,10 +154,11 @@ function parseSocialFiles(zipBuffer: Buffer) {
 }
 
 function attachTitulares(candidates: PublicCandidate[]) {
-  const titulares = new Map<string, PublicCandidate>();
+  const titulares = new Map<string, PublicCandidate[]>();
   for (const candidate of candidates) {
     if (candidate.cargo === "GOVERNADOR" || candidate.cargo === "SENADOR" || candidate.cargo === "PRESIDENTE") {
-      titulares.set(`${candidate.uf}|${candidate.numero}|${candidate.partido}|${candidate.cargo}`, candidate);
+      const key = `${candidate.uf}|${candidate.numero}|${candidate.cargo}`;
+      titulares.set(key, [...(titulares.get(key) ?? []), candidate]);
     }
   }
   return candidates.map((candidate) => {
@@ -164,8 +166,11 @@ function attachTitulares(candidates: PublicCandidate[]) {
       : candidate.cargo === "VICE-PRESIDENTE" ? "PRESIDENTE"
       : candidate.cargo.includes("SUPLENTE") ? "SENADOR"
       : null;
-    const titular = cargoTitular ? titulares.get(`${candidate.uf}|${candidate.numero}|${candidate.partido}|${cargoTitular}`) : undefined;
-    return titular ? { ...candidate, titular: { id: titular.id, nome: titular.nome, cargo: titular.cargo } } : candidate;
+    const opcoes = cargoTitular ? titulares.get(`${candidate.uf}|${candidate.numero}|${cargoTitular}`) ?? [] : [];
+    const titular = opcoes.length === 1 ? opcoes[0] : undefined;
+    return titular
+      ? { ...candidate, titular: { id: titular.id, nome: titular.nome, cargo: titular.cargo } }
+      : cargoTitular ? { ...candidate, vinculoChapaIndisponivel: true } : candidate;
   });
 }
 

@@ -48,4 +48,4 @@ O protótipo inicial não exibirá fotos, conforme decisão do usuário. A base 
 
 ## Ampliação: colinha e confiança editorial
 
-O Checa Aí foi analisado apenas como referência funcional. As decisões de design do Terra continuam soberanas: não adotaremos sua identidade visual. Aproveitaremos, contudo, três padrões de utilidade pública: a escolha da UF como primeiro contexto de navegação, a transparência sobre a última sincronização e a exploração por situação de candidatura. A colinha será uma extensão própria da linguagem editorial laranja e branca do Terra, com seleção explícita, ordem dos cargos e impressão em PDF.
+A colinha é uma extensão própria da linguagem editorial laranja e branca do Terra, com seleção explícita, ordem dos cargos e impressão em PDF. A transparência sobre a última sincronização, o status de candidatura e a origem oficial dos documentos orientam a experiência; nenhuma referência externa de design é utilizada.
