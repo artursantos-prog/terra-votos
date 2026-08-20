@@ -1,4 +1,3 @@
-import { useAuth } from "@/_core/hooks/useAuth";
 import { trpc } from "@/lib/trpc";
 import { jsPDF } from "jspdf";
 import {
@@ -142,7 +141,6 @@ function exportColinha(candidates: Candidate[]) {
 
 export default function Home() {
   const [, setLocation] = useLocation();
-  const { user } = useAuth();
   const snapshot = trpc.election.snapshot.useQuery(undefined, {
     refetchInterval: 5 * 60_000,
     refetchIntervalInBackground: true,
@@ -176,7 +174,7 @@ export default function Home() {
   const clearFilters = () => { setQuery(""); setState(""); setParty(""); setOffice(""); };
 
   return <main className="election-page"><section className="editorial-shell">
-    <header className="site-header" aria-label="Cabeçalho Eleições no Terra"><div className="brand-lockup"><img src="/manus-storage/terra-election-mark_debb05e3.png" alt="" className="brand-mark" /><div className="brand-name"><span>eleições</span><span>no terra</span><b>PRIMEIRO TURNO</b></div></div><div className="header-rule" /><div className="header-tools">{user?.role === "admin" && <Link href="/revisao">Revisão</Link>}<div className="powered-by"><span>Powered by</span><strong>terra</strong></div></div></header>
+    <header className="site-header" aria-label="Cabeçalho Eleições no Terra"><div className="brand-lockup"><img src="/manus-storage/terra-election-mark_debb05e3.png" alt="" className="brand-mark" /><div className="brand-name"><span>eleições</span><span>no terra</span><b>PRIMEIRO TURNO</b></div></div><div className="header-rule" /><div className="header-tools"><div className="powered-by"><span>Powered by</span><strong>terra</strong></div></div></header>
     <div className="intro-panel"><div className="intro-copy"><p className="eyebrow">Eleições 2026</p><h1>Buscador de candidatos</h1><p>Consulte candidaturas deferidas ou aguardando julgamento, partidos e números de urna.</p></div><div className="intro-data"><strong>{loadingCandidates ? "…" : candidates.length.toLocaleString("pt-BR")}</strong><span>candidaturas<br />aptas na base</span></div></div>
     <section className="trust-strip"><ShieldCheck size={17} /><span>{snapshot.data?.filter ?? "Deferido ou Aguardando julgamento"}</span><span className="trust-divider">•</span><span>{snapshot.data?.updatedAt ? `Atualizado em ${new Date(snapshot.data.updatedAt).toLocaleString("pt-BR")}` : "Base oficial em consolidação"}</span></section>
     <section className="search-panel" aria-label="Filtros de candidatos"><div className="search-panel-heading"><div><p className="section-kicker"><SlidersHorizontal size={15} /> Busca refinada</p><h2>Encontre quem você procura</h2></div>{hasFilters && <button className="clear-button" type="button" onClick={clearFilters}><X size={15} /> Limpar filtros</button>}</div><div className="filters-grid"><label className="search-field"><span>Nome ou número</span><div><Search size={18} /><input type="search" value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Digite o nome ou número" /></div></label><OptionSelect label="Estado" value={state} onChange={setState} options={stateOptions} /><OptionSelect label="Partido" value={party} onChange={setParty} options={partyOptions} /><OptionSelect label="Cargo em disputa" value={office} onChange={setOffice} options={officeOptions} /></div><div className="office-chooser"><span>Ou selecione diretamente o cargo que procura</span><div>{featuredOffices.map((item) => <button key={item} type="button" className={office === item ? "office-chip selected" : "office-chip"} onClick={() => setOffice(item)}>{item}</button>)}</div></div></section>
