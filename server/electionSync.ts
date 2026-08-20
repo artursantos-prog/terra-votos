@@ -1,6 +1,25 @@
 import * as db from "./db";
-import { buildElectionSnapshot, CANDIDATES_SOURCE_URL, COMPLEMENTARY_SOURCE_URL, downloadOfficialZip, SOCIAL_SOURCE_URL } from "./electionData";
-import { storagePut } from "./storage";
+import { buildElectionSnapshot, CANDIDATES_SOURCE_URL, COMPLEMENTARY_SOURCE_URL, downloadOfficialZip, enrichOfficialCandidateMetadata, SOCIAL_SOURCE_URL } from "./electionData";
+import { storageGetSignedUrl, storagePut } from "./storage";
+
+async function preserveConfirmedProposalLinks(snapshot: Awaited<ReturnType<typeof enrichOfficialCandidateMetadata>>) {
+  const previous = await db.getPublishedElectionSnapshot();
+  if (!previous?.dataUrl?.startsWith("/manus-storage/")) return snapshot;
+  try {
+    const key = previous.dataUrl.replace("/manus-storage/", "");
+    const response = await fetch(await storageGetSignedUrl(key));
+    if (!response.ok) return snapshot;
+    const priorData = await response.json() as { candidaturas?: Array<{ id: string; propostaGovernoUrl?: string }> };
+    const priorPlans = new Map((priorData.candidaturas ?? []).filter((candidate) => candidate.propostaGovernoUrl).map((candidate) => [candidate.id, candidate.propostaGovernoUrl]));
+    const candidaturas = snapshot.candidaturas.map((candidate) => candidate.propostaGovernoUrl || !priorPlans.get(candidate.id)
+      ? candidate
+      : { ...candidate, propostaGovernoUrl: priorPlans.get(candidate.id) });
+    return { ...snapshot, totalComProposta: candidaturas.filter((candidate) => Boolean(candidate.propostaGovernoUrl)).length, candidaturas };
+  } catch (error) {
+    console.warn("[Elections] Não foi possível preservar links oficiais de proposta:", String(error));
+    return snapshot;
+  }
+}
 
 export async function synchronizeElectionSnapshot() {
   const runId = await db.startElectionSync("Portal de Dados Abertos do TSE", CANDIDATES_SOURCE_URL);
@@ -13,7 +32,9 @@ export async function synchronizeElectionSnapshot() {
     } catch (error) {
       console.warn("[Elections] Redes sociais não disponíveis nesta sincronização:", String(error));
     }
-    const snapshot = buildElectionSnapshot(candidateZip, complementaryZip, socialZip);
+    const rawSnapshot = buildElectionSnapshot(candidateZip, complementaryZip, socialZip);
+    const enrichedSnapshot = await enrichOfficialCandidateMetadata(rawSnapshot);
+    const snapshot = await preserveConfirmedProposalLinks(enrichedSnapshot);
     const key = `eleicoes-2026/candidaturas-${snapshot.geradoEm.replace(/[:.]/g, "-")}.json`;
     const stored = await storagePut(key, JSON.stringify(snapshot), "application/json; charset=utf-8");
     await db.completeElectionSync({

@@ -22,6 +22,7 @@ export type PublicCandidate = {
   redesSociais: string[];
   titular?: { id: string; nome: string; cargo: string };
   vinculoChapaIndisponivel?: boolean;
+  propostaGovernoUrl?: string;
   pesquisa: string;
 };
 
@@ -32,6 +33,7 @@ export type ElectionSnapshot = {
   totalOriginal: number;
   totalElegivel: number;
   totalComRedes: number;
+  totalComProposta?: number;
   candidaturas: PublicCandidate[];
 };
 
@@ -153,25 +155,108 @@ function parseSocialFiles(zipBuffer: Buffer) {
   return socialByCandidate;
 }
 
-function attachTitulares(candidates: PublicCandidate[]) {
-  const titulares = new Map<string, PublicCandidate[]>();
-  for (const candidate of candidates) {
-    if (candidate.cargo === "GOVERNADOR" || candidate.cargo === "SENADOR" || candidate.cargo === "PRESIDENTE") {
-      const key = `${candidate.uf}|${candidate.numero}|${candidate.cargo}`;
-      titulares.set(key, [...(titulares.get(key) ?? []), candidate]);
-    }
+function cargoTitular(cargo: string) {
+  if (cargo === "VICE-PRESIDENTE") return "PRESIDENTE";
+  if (cargo === "VICE-GOVERNADOR") return "GOVERNADOR";
+  return cargo.includes("SUPLENTE") ? "SENADOR" : null;
+}
+
+function normalizeOffice(value: unknown) {
+  return normalize(String(value ?? ""));
+}
+
+type TSEDetail = {
+  vices?: Array<{ sq_CANDIDATO?: string | number; id?: string | number; nm_URNA?: string; nomeUrna?: string; nome?: string; ds_CARGO?: string; cargo?: string }>;
+  arquivos?: Array<{ idArquivo?: string | number; codTipo?: string | number }>;
+};
+
+async function fetchCandidateDetail(candidate: PublicCandidate): Promise<TSEDetail> {
+  let lastStatus = 0;
+  for (let attempt = 0; attempt < 3; attempt += 1) {
+    const response = await fetch(`https://divulgacandcontas.tse.jus.br/divulga/rest/v1/candidatura/buscar/2026/${candidate.uf}/${ELECTION_ID}/candidato/${candidate.id}`, {
+      headers: { accept: "application/json", "user-agent": "TerraEleicoesDataBot/1.0" },
+      signal: AbortSignal.timeout(30_000),
+    });
+    if (response.ok) return response.json() as Promise<TSEDetail>;
+    lastStatus = response.status;
+    if (response.status !== 403 && response.status !== 429 && response.status < 500) break;
+    await new Promise((resolve) => setTimeout(resolve, 700 * (attempt + 1)));
   }
-  return candidates.map((candidate) => {
-    const cargoTitular = candidate.cargo === "VICE-GOVERNADOR" ? "GOVERNADOR"
-      : candidate.cargo === "VICE-PRESIDENTE" ? "PRESIDENTE"
-      : candidate.cargo.includes("SUPLENTE") ? "SENADOR"
-      : null;
-    const opcoes = cargoTitular ? titulares.get(`${candidate.uf}|${candidate.numero}|${cargoTitular}`) ?? [] : [];
-    const titular = opcoes.length === 1 ? opcoes[0] : undefined;
-    return titular
-      ? { ...candidate, titular: { id: titular.id, nome: titular.nome, cargo: titular.cargo } }
-      : cargoTitular ? { ...candidate, vinculoChapaIndisponivel: true } : candidate;
+  throw new Error(`Detalhe oficial indisponível para ${candidate.id} (HTTP ${lastStatus})`);
+}
+
+async function tryFetchCandidateDetail(candidate: PublicCandidate): Promise<TSEDetail | undefined> {
+  try {
+    const response = await fetch(`https://divulgacandcontas.tse.jus.br/divulga/rest/v1/candidatura/buscar/2026/${candidate.uf}/${ELECTION_ID}/candidato/${candidate.id}`, {
+      headers: { accept: "application/json", "user-agent": "TerraEleicoesDataBot/1.0" },
+      signal: AbortSignal.timeout(20_000),
+    });
+    return response.ok ? response.json() as Promise<TSEDetail> : undefined;
+  } catch {
+    return undefined;
+  }
+}
+
+async function collectInBatches<T>(items: T[], operation: (item: T) => Promise<void>, concurrency = 16) {
+  let cursor = 0;
+  await Promise.all(Array.from({ length: Math.min(concurrency, items.length) }, async () => {
+    while (cursor < items.length) {
+      const item = items[cursor++];
+      await operation(item);
+    }
+  }));
+}
+
+/**
+ * Completa o snapshot apenas com relações explicitamente presentes no detalhe
+ * público do DivulgaCandContas. O número de urna e o partido não são usados
+ * para deduzir vínculos de chapa.
+ */
+export async function enrichOfficialCandidateMetadata(snapshot: ElectionSnapshot): Promise<ElectionSnapshot> {
+  const candidates = snapshot.candidaturas;
+  const candidateById = new Map(candidates.map((candidate) => [candidate.id, candidate]));
+  const ticketMembers = candidates.filter((candidate) => cargoTitular(candidate.cargo));
+  const proposalCandidates = candidates.filter((candidate) => candidate.cargo === "PRESIDENTE" || candidate.cargo === "GOVERNADOR");
+  const ticketDetails = new Map<string, TSEDetail>();
+  const proposalDetails = new Map<string, TSEDetail>();
+
+  await collectInBatches(ticketMembers, async (candidate) => {
+    ticketDetails.set(candidate.id, await fetchCandidateDetail(candidate));
   });
+  await collectInBatches(proposalCandidates, async (candidate) => {
+    const detail = await tryFetchCandidateDetail(candidate);
+    if (detail) proposalDetails.set(candidate.id, detail);
+  }, 4);
+
+  const details = new Map<string, TSEDetail>();
+  ticketDetails.forEach((detail, id) => details.set(id, detail));
+  proposalDetails.forEach((detail, id) => details.set(id, detail));
+
+  const candidaturas = candidates.map((candidate) => {
+    const detail = details.get(candidate.id);
+    const titularOffice = cargoTitular(candidate.cargo);
+    const officialOptions = titularOffice
+      ? (detail?.vices ?? []).filter((item) => {
+        const id = String(item.sq_CANDIDATO ?? item.id ?? "");
+        return id !== candidate.id && normalizeOffice(item.ds_CARGO ?? item.cargo) === titularOffice;
+      })
+      : [];
+    const linkedId = officialOptions.length === 1 ? String(officialOptions[0].sq_CANDIDATO ?? officialOptions[0].id) : undefined;
+    const titular = linkedId ? candidateById.get(linkedId) : undefined;
+    const proposalFile = (detail?.arquivos ?? []).find((file) => String(file.codTipo) === "5" && file.idArquivo);
+    return {
+      ...candidate,
+      ...(titular ? { titular: { id: titular.id, nome: titular.nome, cargo: titular.cargo } } : {}),
+      ...(titularOffice && !titular ? { vinculoChapaIndisponivel: true } : {}),
+      ...(proposalFile ? { propostaGovernoUrl: `https://divulgacandcontas.tse.jus.br/divulga/rest/arquivo/doc/${proposalFile.idArquivo}` } : {}),
+    };
+  });
+
+  return {
+    ...snapshot,
+    totalComProposta: candidaturas.filter((candidate) => Boolean(candidate.propostaGovernoUrl)).length,
+    candidaturas,
+  };
 }
 
 export function buildElectionSnapshot(candidateZip: Buffer, complementaryZip: Buffer, socialZip?: Buffer): ElectionSnapshot {
@@ -185,7 +270,7 @@ export function buildElectionSnapshot(candidateZip: Buffer, complementaryZip: Bu
     redesSociais: socialByCandidate.get(candidate.id) ?? [],
     pesquisa: normalize([candidate.nome, candidate.nomeCompleto, candidate.numero, candidate.partido, candidate.uf, candidate.cargo].join(" ")),
   }));
-  const candidaturas = attachTitulares(withMetadata).sort((first, second) =>
+  const candidaturas = withMetadata.sort((first, second) =>
     first.uf.localeCompare(second.uf, "pt-BR") || first.cargo.localeCompare(second.cargo, "pt-BR") || first.nome.localeCompare(second.nome, "pt-BR"),
   );
   return {

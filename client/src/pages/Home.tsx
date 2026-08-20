@@ -36,16 +36,15 @@ type Candidate = {
   redesSociais?: string[];
   titular?: { id: string; nome: string; cargo: string };
   vinculoChapaIndisponivel?: boolean;
+  propostaGovernoUrl?: string;
   pesquisa: string;
 };
 
 type CandidateResponse = { candidaturas?: Candidate[]; candidatos?: Candidate[] };
 
-const FALLBACK_DATA_URL = "/manus-storage/candidatos-eleicoes-2026_1118210b.json";
+const FALLBACK_DATA_URL = "/manus-storage/candidatos-eleicoes-2026-enriquecido_1a1dd430.json";
 const PAGE_SIZE = 12;
 const STORAGE_KEY = "terra-eleicoes-colinha-2026";
-const ELECTION_ID = "20322002026";
-const PLAN_OFFICES = new Set(["PRESIDENTE", "GOVERNADOR"]);
 const FEATURED_OFFICES = ["PRESIDENTE", "GOVERNADOR", "SENADOR", "DEPUTADO FEDERAL", "DEPUTADO ESTADUAL", "DEPUTADO DISTRITAL"];
 
 const STATE_NAMES: Record<string, string> = {
@@ -57,13 +56,7 @@ function normalizeSearch(value: string) {
 }
 
 function isSelectable(candidate: Candidate) {
-  return !candidate.cargo.includes("SUPLENTE") && !candidate.cargo.startsWith("VICE-");
-}
-
-function getOfficialProposalProfile(candidate: Candidate) {
-  if (!PLAN_OFFICES.has(candidate.cargo)) return null;
-  const ue = candidate.uf === "BR" ? "BR" : candidate.uf;
-  return `https://divulgacandcontas.tse.jus.br/divulga/#/candidato/${ue}/${ue}/${ELECTION_ID}/${candidate.id}/2026/${ue}`;
+  return Boolean(candidate.id);
 }
 
 function OptionSelect({ label, value, onChange, options }: { label: string; value: string; onChange: (value: string) => void; options: { label: string; value: string }[] }) {
@@ -82,7 +75,7 @@ function OptionSelect({ label, value, onChange, options }: { label: string; valu
 
 function CandidateCard({ candidate, index, selected, onToggle, onReport }: { candidate: Candidate; index: number; selected: boolean; onToggle: () => void; onReport: () => void }) {
   const selectable = isSelectable(candidate);
-  const proposalProfile = getOfficialProposalProfile(candidate);
+  const proposalUrl = candidate.propostaGovernoUrl;
   return (
     <article className="candidate-card" style={{ "--card-index": index } as React.CSSProperties}>
       <div className="candidate-topline" />
@@ -94,19 +87,19 @@ function CandidateCard({ candidate, index, selected, onToggle, onReport }: { can
       {candidate.titular && <p className="linked-ticket">Vinculado a <b>{candidate.titular.nome}</b> · {candidate.titular.cargo.toLowerCase()}</p>}
       {candidate.vinculoChapaIndisponivel && <p className="linked-ticket linked-ticket-unavailable">Composição da chapa não identificada de forma única na base oficial.</p>}
       {candidate.redesSociais && candidate.redesSociais.length > 0 && <div className="social-links">{candidate.redesSociais.slice(0, 2).map((url) => <a key={url} href={url} target="_blank" rel="noreferrer">Rede oficial <ArrowUpRight size={11} /></a>)}</div>}
-      {proposalProfile && <a className="proposal-link" href={proposalProfile} target="_blank" rel="noreferrer">Ler plano de governo no TSE <ArrowUpRight size={12} /></a>}
+      {proposalUrl && <a className="proposal-link" href={proposalUrl} target="_blank" rel="noreferrer">Abrir plano de governo oficial <ArrowUpRight size={12} /></a>}
       <div className="candidate-number" aria-label={`Número de urna ${candidate.numero}`}><span>Número</span><strong>{candidate.numero}</strong></div>
       <div className="candidate-bottomline"><span>{candidate.situacao}</span><ShieldCheck aria-hidden="true" size={16} /></div>
       <div className="candidate-actions">
-        {selectable ? <button className={selected ? "select-candidate selected" : "select-candidate"} type="button" onClick={onToggle}>{selected ? <><Check size={14} /> Na colinha</> : <><Bookmark size={14} /> Adicionar</>}</button> : <span className="linked-role">Composição da chapa</span>}
-        <button className="report-button" type="button" onClick={onReport}><Flag size={14} /> Apontar erro</button>
+        {selectable && <button className={selected ? "select-candidate selected" : "select-candidate"} type="button" onClick={onToggle} aria-pressed={selected}>{selected ? <><Check size={14} /> Na colinha</> : <><Bookmark size={14} /> Adicionar à colinha</>}</button>}
+        <button className="report-button" type="button" onClick={onReport}><Flag size={14} /> Reportar informação</button>
       </div>
     </article>
   );
 }
 
 function ReportDialog({ candidate, onClose }: { candidate: Candidate; onClose: () => void }) {
-  const [category, setCategory] = useState("Informação desatualizada");
+  const [category, setCategory] = useState("Outro dado do candidato");
   const [message, setMessage] = useState("");
   const [email, setEmail] = useState("");
   const report = trpc.reports.create.useMutation({
@@ -117,7 +110,7 @@ function ReportDialog({ candidate, onClose }: { candidate: Candidate; onClose: (
     event.preventDefault();
     report.mutate({ candidateId: candidate.id, candidateName: candidate.nome, candidateNumber: candidate.numero, candidateUf: candidate.uf, candidateOffice: candidate.cargo, category, message, contactEmail: email });
   }
-  return <div className="dialog-backdrop" role="presentation"><section className="report-dialog" role="dialog" aria-modal="true" aria-labelledby="report-title"><button className="dialog-close" type="button" onClick={onClose} aria-label="Fechar"><X size={18} /></button><p className="section-kicker"><Flag size={14} /> Revisão editorial</p><h2 id="report-title">Apontar uma informação</h2><p>Envie um contexto verificável sobre <b>{candidate.nome}</b>. O conteúdo será recebido apenas pela equipe responsável.</p><form onSubmit={submit}><label>Tipo de apontamento<select value={category} onChange={(event) => setCategory(event.target.value)}><option>Informação desatualizada</option><option>Dados de candidatura</option><option>Foto ou nome de urna</option><option>Rede social</option><option>Outro</option></select></label><label>Mensagem<textarea value={message} onChange={(event) => setMessage(event.target.value)} minLength={10} maxLength={3000} required placeholder="Descreva o erro e, se possível, indique a fonte pública para conferência." /></label><label>E-mail para retorno <small>(opcional)</small><input type="email" value={email} onChange={(event) => setEmail(event.target.value)} placeholder="voce@exemplo.com" /></label><button className="dialog-submit" type="submit" disabled={report.isPending}>{report.isPending ? "Enviando…" : "Enviar apontamento"}</button></form></section></div>;
+  return <div className="dialog-backdrop" role="presentation"><section className="report-dialog" role="dialog" aria-modal="true" aria-labelledby="report-title"><button className="dialog-close" type="button" onClick={onClose} aria-label="Fechar"><X size={18} /></button><p className="section-kicker"><Flag size={14} /> Revisão editorial</p><h2 id="report-title">Reportar erro ou inconsistência</h2><p>Use este formulário para relatar qualquer informação incorreta ou incompleta sobre <b>{candidate.nome}</b>: nome, número, cargo, partido, situação, foto, rede social, vínculo de chapa ou plano de governo. A equipe editorial receberá o apontamento para verificação.</p><form onSubmit={submit}><label>Qual informação precisa de revisão?<select value={category} onChange={(event) => setCategory(event.target.value)}><option>Nome ou número de urna</option><option>Partido, cargo ou situação</option><option>Foto do candidato</option><option>Rede social</option><option>Vínculo de chapa</option><option>Plano de governo</option><option>Outro dado do candidato</option></select></label><label>Descreva o erro ou a inconsistência<textarea value={message} onChange={(event) => setMessage(event.target.value)} minLength={10} maxLength={3000} required placeholder="Informe o que está incorreto e, se possível, inclua a URL ou referência oficial para conferência." /></label><label>E-mail para retorno <small>(opcional)</small><input type="email" value={email} onChange={(event) => setEmail(event.target.value)} placeholder="voce@exemplo.com" /></label><button className="dialog-submit" type="submit" disabled={report.isPending}>{report.isPending ? "Enviando…" : "Enviar para revisão"}</button></form></section></div>;
 }
 
 function exportColinha(candidates: Candidate[]) {
@@ -183,7 +176,7 @@ export default function Home() {
     <div className="intro-panel"><div className="intro-copy"><p className="eyebrow">Eleições 2026</p><h1>Buscador de candidatos</h1><p>Consulte candidaturas deferidas ou aguardando julgamento, partidos e números de urna.</p></div><div className="intro-data"><strong>{loadingCandidates ? "…" : candidates.length.toLocaleString("pt-BR")}</strong><span>candidaturas<br />aptas na base</span></div></div>
     <section className="trust-strip"><ShieldCheck size={17} /><span>{snapshot.data?.filter ?? "Deferido ou Aguardando julgamento"}</span><span className="trust-divider">•</span><span>{snapshot.data?.updatedAt ? `Atualizado em ${new Date(snapshot.data.updatedAt).toLocaleString("pt-BR")}` : "Base oficial em consolidação"}</span></section>
     <section className="search-panel" aria-label="Filtros de candidatos"><div className="search-panel-heading"><div><p className="section-kicker"><SlidersHorizontal size={15} /> Busca refinada</p><h2>Encontre quem você procura</h2></div>{hasFilters && <button className="clear-button" type="button" onClick={clearFilters}><X size={15} /> Limpar filtros</button>}</div><div className="filters-grid"><label className="search-field"><span>Nome ou número</span><div><Search size={18} /><input type="search" value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Digite o nome ou número" /></div></label><OptionSelect label="Estado" value={state} onChange={setState} options={stateOptions} /><OptionSelect label="Partido" value={party} onChange={setParty} options={partyOptions} /><OptionSelect label="Cargo em disputa" value={office} onChange={setOffice} options={officeOptions} /></div><div className="office-chooser"><span>Ou selecione diretamente o cargo que procura</span><div>{featuredOffices.map((item) => <button key={item} type="button" className={office === item ? "office-chip selected" : "office-chip"} onClick={() => setOffice(item)}>{item}</button>)}</div></div></section>
-    <section className="colinha-bar"><div><p className="section-kicker"><Bookmark size={14} /> Minha colinha</p><strong>{selectedCandidates.length} perfil{selectedCandidates.length === 1 ? "" : "is"} selecionado{selectedCandidates.length === 1 ? "" : "s"}</strong><span>Escolha candidatos titulares e baixe a lista para imprimir.</span></div><div className="colinha-actions"><button type="button" className="secondary-action" onClick={() => setSelectedIds(new Set())} disabled={!selectedCandidates.length}>Limpar</button><button type="button" className="primary-action" onClick={() => exportColinha(selectedCandidates)} disabled={!selectedCandidates.length}><FileDown size={17} /> Baixar PDF</button></div></section>
+    <section className="colinha-bar"><div><p className="section-kicker"><Bookmark size={14} /> Minha colinha</p><strong>{selectedCandidates.length === 1 ? "1 perfil selecionado" : `${selectedCandidates.length} perfis selecionados`}</strong><span>Use o botão “Adicionar à colinha” em qualquer card e baixe a lista para imprimir.</span></div><div className="colinha-actions"><button type="button" className="secondary-action" onClick={() => setSelectedIds(new Set())} disabled={!selectedCandidates.length}>Limpar</button><button type="button" className="primary-action" onClick={() => exportColinha(selectedCandidates)} disabled={!selectedCandidates.length}><FileDown size={17} /> Baixar PDF</button></div></section>
     <section className="results-section" aria-live="polite"><div className="results-header"><div><p className="section-kicker">Resultados da busca</p><h2>{loadingCandidates ? "Carregando candidaturas…" : `${filteredCandidates.length.toLocaleString("pt-BR")} candidatura${filteredCandidates.length === 1 ? "" : "s"}`}</h2></div>{!loadingCandidates && filteredCandidates.length > 0 && <p>Exibindo {pageStart + 1}–{Math.min(pageStart + PAGE_SIZE, filteredCandidates.length)} de {filteredCandidates.length.toLocaleString("pt-BR")}</p>}</div>
       {loadingCandidates && <div className="status-card loading-card"><Loader2 className="spinner" size={24} /><div><strong>Preparando a base eleitoral</strong><span>Isso pode levar alguns segundos na primeira visita.</span></div></div>}
       {loadError && <div className="status-card error-card"><div><strong>Não foi possível carregar a base de candidatos.</strong><span>Atualize a página para tentar novamente.</span></div></div>}
