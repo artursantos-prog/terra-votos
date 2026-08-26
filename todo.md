@@ -139,3 +139,9 @@ A navegação foi solicitada explicitamente pela rota interna de detalhe para o 
 ## Arquivos de integração para o portal
 
 - [x] Preparar e validar uma página HTML independente para homologar o iframe e um snippet compacto de embed para o portal Terra.
+
+## Auditoria da sincronização diária
+
+- [ ] Verificar a primeira execução real de `election-sync-daily` pelo identificador informado, confirmando horário, resultado, totais importados e indicador de alerta somente com evidência do histórico.
+
+Em 26/08/2026, o identificador informado não pertenceu a este projeto. A única rotina diária ativa do projeto apresentou falhas registradas e nenhuma execução bem-sucedida; por isso, esta confirmação permanece pendente e não foi marcada como concluída.

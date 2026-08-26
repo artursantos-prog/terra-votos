@@ -53,3 +53,11 @@ Em 20 de agosto de 2026, os três ZIPs oficiais de candidaturas, julgamento comp
 Na verificação posterior, a navegação direta ao domínio publicado redirecionou para autenticação Manus. Essa condição será tratada como bloqueio de acesso público, pois um embed não pode depender de sessão do editor.
 
 Na tentativa de alterar essa visibilidade pela conta proprietária, o fluxo chegou ao provedor Google, mas a autenticação recusou a senha da conta. Essa etapa é controlada pelo provedor e pela plataforma de publicação; não foram feitas tentativas adicionais de senha nem qualquer contorno de segurança. Até a regularização da vinculação, o código e o snapshot permanecem publicados, mas o domínio continua protegido antes de o aplicativo receber a requisição.
+
+## Auditoria da primeira execução da rotina diária
+
+Em 26 de agosto de 2026, foi consultado o identificador fornecido no playbook, `Dd9Cdys2YKfPHTpre9Kpja`. A plataforma retornou `permission_denied`, informando que essa tarefa não pertence a este projeto; portanto, não foi possível tratá-la como evidência da rotina do buscador. A listagem do projeto identificou uma única tarefa Heartbeat ativa: `eleicoes-2026-sync-v2`, identificador `EQQoib72nk2GnK2bjtTp7t`, com chamada `POST /api/scheduled/election-sync` em `0 0 0,12 * * *` (UTC).
+
+A execução mais recente dessa tarefa ocorreu às **2026-08-25 00:05:51 UTC** e terminou às **2026-08-25 00:05:52 UTC** com falha HTTP `404`. As duas execuções anteriores também retornaram `404`; as falhas de 22 de agosto retornaram `500` com evidência de bloqueio `HTTP 403` pela API pública do TSE. A consulta filtrada por execuções bem-sucedidas retornou **zero registros**. Por isso, não há resposta de sucesso que permita confirmar `emailAlertSent: true`, nem há totais importados atribuíveis a essa rotina diária.
+
+Como verificação de preservação, a configuração continua apontando para o snapshot ativo `300001`, cuja última publicação bem-sucedida registrada foi em **2026-08-20 17:31:18**. Esse snapshot anterior contém 20.639 candidaturas processadas, 20.481 candidaturas elegíveis e 14.261 perfis com rede social declarada. Esses números descrevem a última base válida, não uma importação da execução diária falha. Nenhuma fonte, dado publicado, rotina diária ou agenda concorrente foi alterada durante esta auditoria.
