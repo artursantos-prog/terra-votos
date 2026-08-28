@@ -5,15 +5,20 @@ import { Route, Switch } from "wouter";
 import ErrorBoundary from "./components/ErrorBoundary";
 import { ThemeProvider } from "./contexts/ThemeContext";
 import Home from "./pages/Home";
-import AdminReview from "./pages/AdminReview";
+import OutsideDispute from "./pages/OutsideDispute";
+import OwnerReports from "./pages/OwnerReports";
+import EmbeddedSearch from "./pages/EmbeddedSearch";
 
 function Router() {
   // make sure to consider if you need authentication for certain routes
   return (
     <Switch>
       <Route path={"/"} component={Home} />
-      <Route path={"/revisao"} component={AdminReview} />
-      <Route path={"/revisao/apontamentos"} component={AdminReview} />
+      <Route path={"/fora-da-disputa"} component={OutsideDispute} />
+      <Route path={"/embed"} component={() => <EmbeddedSearch category="em_disputa" />} />
+      <Route path={"/embed/fora-da-disputa"} component={() => <EmbeddedSearch category="fora_da_disputa" />} />
+      <Route path={"/gestao/reportes"} component={OwnerReports} />
+      <Route path={"/owner/reports"} component={OwnerReports} />
       <Route path={"/404"} component={NotFound} />
       {/* Final fallback route */}
       <Route component={NotFound} />

@@ -28,8 +28,8 @@ import { DashboardLayoutSkeleton } from './DashboardLayoutSkeleton';
 import { Button } from "./ui/button";
 
 const menuItems = [
-  { icon: LayoutDashboard, label: "Sincronizações", path: "/revisao" },
-  { icon: Users, label: "Apontamentos", path: "/revisao/apontamentos" },
+  { icon: LayoutDashboard, label: "Page 1", path: "/" },
+  { icon: Users, label: "Page 2", path: "/some-path" },
 ];
 
 const SIDEBAR_WIDTH_KEY = "sidebar-width";
@@ -62,10 +62,10 @@ export default function DashboardLayout({
         <div className="flex flex-col items-center gap-8 p-8 max-w-md w-full">
           <div className="flex flex-col items-center gap-6">
             <h1 className="text-2xl font-semibold tracking-tight text-center">
-              Entre para continuar
+              Sign in to continue
             </h1>
             <p className="text-sm text-muted-foreground text-center max-w-sm">
-              Esta área de revisão requer autenticação.
+              Access to this dashboard requires authentication. Continue to launch the login flow.
             </p>
           </div>
           <Button
@@ -73,7 +73,7 @@ export default function DashboardLayout({
             size="lg"
             className="w-full shadow-lg hover:shadow-xl transition-all"
           >
-            Entrar
+            Sign in
           </Button>
         </div>
       </div>
@@ -169,7 +169,7 @@ function DashboardLayoutContent({
               {!isCollapsed ? (
                 <div className="flex items-center gap-2 min-w-0">
                   <span className="font-semibold tracking-tight truncate">
-                    Revisão eleitoral
+                    Navigation
                   </span>
                 </div>
               ) : null}
@@ -224,7 +224,7 @@ function DashboardLayoutContent({
                   className="cursor-pointer text-destructive focus:text-destructive"
                 >
                   <LogOut className="mr-2 h-4 w-4" />
-                  <span>Sair</span>
+                  <span>Sign out</span>
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>

@@ -1,147 +1,173 @@
-- [x] Mapear o fluxo público de filtros do DivulgaCandContas e seus limites de acesso automatizado.
-- [x] Identificar uma fonte pública e reproduzível das fotos vinculada aos candidatos da eleição de 2026.
-- [x] Comparar por UF, cargo e identificador a cobertura do portal do TSE com os 28 CSVs principais recebidos.
-- [x] Classificar candidatos ausentes, novos, duplicados ou com situação atualizada.
-- [x] Atualizar a base pública e os cards do buscador com fotos, sem expor campos pessoais não necessários.
-- [x] Validar a versão atualizada em desktop e celular e preparar o relatório de cobertura.
+# Project TODO
 
-## Registro de investigação
-
-O acesso inicial ao endereço público `https://divulgacandcontas.tse.jus.br/divulga/#/home` retornou uma aplicação sem conteúdo visível no ambiente automatizado, mesmo após nova leitura. A próxima etapa é analisar apenas os recursos públicos que a página referencia e procurar fontes oficiais alternativas que não exijam a manipulação manual da interface.
-
-O acesso posterior ao perfil enviado pelo usuário confirmou o fluxo público de consulta: unidade eleitoral, cargo obrigatório, partido opcional e pesquisa. Também confirmou que o portal informa atualização a cada 60 minutos. O pacote oficial de fotos por UF, publicado no Portal de Dados Abertos do TSE, pôde ser baixado pelo navegador; o download direto via linha de comando recebeu resposta 403 do CDN. A coleta usará o caminho oficial de dados abertos, sem depender da extração visual de cada perfil.
-
-O filtro público foi acionado na abrangência Brasil e confirmou que a seleção de cargo é obrigatória antes da pesquisa; Presidente e Vice-presidente são as opções na abrangência nacional. Esse comportamento confirma a estratégia de associação por UF e cargo, mas a extração de fotos continuará baseada nos arquivos oficiais por UF, cuja nomenclatura já traz o identificador `SQ_CANDIDATO`.
-
-A pesquisa pública por Presidente retornou 13 registros e exibiu a lista nominal, incluindo Zema (NOVO, 30). Esse total coincide com a soma publicada na página inicial do DivulgaCandContas para esse cargo. A comparação em arquivo continuará sendo a verificação abrangente por identificador, porque é mais confiável e escalável que a navegação manual dos filtros.
-
-Os recursos JavaScript públicos do DivulgaCandContas respondem no próprio contexto do navegador, embora bloqueiem requisições diretas de linha de comando. A primeira inspeção confirmou módulos públicos relacionados a “Bem na Foto”, mas não revelou ainda uma URL de imagem por candidato; a investigação seguirá pelos módulos carregados na rota de candidaturas.
-
-O CDN de fotos também bloqueou a leitura via `fetch` a partir do domínio do DivulgaCandContas, o que indica uma restrição de origem. A navegação direta no navegador, por outro lado, baixa os arquivos oficiais normalmente. Para escala, será necessário extrair uma rota de imagem individual do portal ou utilizar a coleção de ZIPs oficiais de fotos por UF por meio do navegador.
-
-O manifesto público da aplicação identificou o módulo de rotas de candidaturas como `829.00d399bdb2b1f6cc.js`. A próxima inspeção será limitada a esse módulo, buscando a rota utilizada no detalhe de candidato e qualquer URL de foto individual. Não haverá extração de dados além dos campos públicos necessários ao buscador.
-
-O módulo de candidatos confirmou que a interface do DivulgaCandContas usa campos de URL pública de foto (`fotoUrlPublicavel` e `urlFotoPublicavel`) nos resultados e detalhes. A próxima etapa é identificar o endpoint público que popula esses campos, para que os cards possam exibir a foto sem manter dezenas de milhares de arquivos no projeto.
-
-O endpoint público de listagem foi identificado no formato `/divulga/rest/v1/candidatura/listar/{ano}/{UF}/{idEleicao}/{codigoCargo}/candidatos`. Ele retorna o identificador `id` compatível com `SQ_CANDIDATO` e os campos `fotoUrl` e `fotoUrlPublicavel`. No primeiro retorno de lista, os campos de foto vieram nulos para registros ainda aguardando julgamento; será necessário consultar o detalhe ou associar as imagens pelo pacote oficial para cobrir as candidaturas divulgadas.
-
-A página de detalhe confirmou a URL pública de imagem no formato `https://divulgacandcontas.tse.jus.br/divulga/rest/arquivo/img/{idEleicao}/{SQ_CANDIDATO}/{SG_UE}`. A foto de teste foi exibida corretamente para Zema usando `https://divulgacandcontas.tse.jus.br/divulga/rest/arquivo/img/20322002026/280002539826/BR`. Essa rota evita downloads e hospedagem local de dezenas de milhares de imagens.
-
-A coleta integral dos endpoints de listagem excedeu o limite de execução de uma única operação no navegador. Uma coleta reduzida para Presidente e Vice-presidente funcionou e gerou 26 registros, confirmando que a comparação precisa ser executada em lotes pequenos e consolidados localmente. Os campos de foto retornados na listagem continuam nulos para esses registros; a URL de imagem do detalhe seguirá como fonte dos cards.
-
-A comparação de totais por cargo encontrou diferenças entre a atualização horária do portal e a extração oficial por arquivo, que é atualizada quatro vezes ao dia. O portal registrou 20.643 pedidos, enquanto o arquivo oficial atual contém 20.639 candidatos; a diferença foi confirmada, por exemplo, na disputa para governador do Pará, onde o portal já mostra WELL MACEDO (`SQ_CANDIDATO` 140002554108) e o CSV oficial ainda não o contém. A base do buscador adotará o arquivo oficial mais recente e registrará essa defasagem transitória de publicação.
-
-O mesmo atraso transitório ocorre para Vice-Governador no Pará: o portal já relaciona SEU ALEX (`SQ_CANDIDATO` 140002554109), enquanto a extração oficial ainda não o traz. A lista também mostra WELL MACEDO como vice em situação de renúncia, o que reforça que o portal pode refletir eventos de candidatura antes do próximo ciclo do arquivo de dados abertos.
-
-A terceira diferença está no cargo de 2º suplente no Pará: o portal mostra 12 registros e o arquivo oficial 11. A comparação direta por identificador confirmou que KINZINHO (`SQ_CANDIDATO` 140002553960, SOLIDARIEDADE, número 777) consta no resultado público atual e ainda não aparece na extração oficial consolidada.
-
-A quarta diferença está entre candidaturas a deputado federal em Roraima: o portal apresenta 106 e o CSV oficial 105. A lista pública atual inclui a candidatura adicional, que será mantida como divergência transitória até a próxima atualização do arquivo oficial. Com isso, os quatro registros adicionais do portal em relação ao CSV foram localizados por cargo e UF: Governador/PA, Vice-Governador/PA, 2º Suplente/PA e Deputado Federal/RR.
-
-A candidatura adicional de Roraima foi identificada como LARISSA MULHERES DA SEGURANÇA (`SQ_CANDIDATO` 230002554110, PSOL, número 5057). Ela está no portal e não consta no CSV oficial baixado nesta verificação. A base do buscador permanece sincronizada com o arquivo oficial mais recente, que também incorporou PAULA CRISTIANE (`SQ_CANDIDATO` 170002554086, AVANTE, número 70231, deputada estadual de Pernambuco) em relação aos arquivos originalmente enviados.
-
-Uma leitura posterior confirmou que SAMUEL CAMARA já aparece no CSV oficial de 2º suplente do Pará; a comparação direta por identificador corrigiu a atribuição da divergência para KINZINHO.
-
-## Evolução solicitada
-
-- [x] Confirmar a regra editorial para a contagem oficial e a elegibilidade das situações de candidatura.
-- [x] Consolidar dados oficiais de candidaturas, suplentes e redes sociais em um snapshot público normalizado.
-- [x] Completar o vínculo de vices e suplentes aos titulares quando há correspondência única e sinalizar na interface os casos sem relação oficial disponível.
-- [x] Criar a seleção persistente de perfis e a exportação da colinha em PDF para impressão.
-- [x] Disponibilizar formulário público de apontamento e área privada de revisão com autenticação.
-- [x] Configurar e registrar a rotina de atualização duas vezes ao dia com a fonte oficial de dados abertos, preservando o último snapshot válido quando necessário.
-
-## Fontes adicionais
-
-O recurso oficial de redes sociais foi confirmado em `rede_social_candidato_2026.zip`, publicado no conjunto Candidatos 2026 do Portal de Dados Abertos do TSE. O CDN rejeitou o download direto nesta sessão; a integração deve tratar esse caso com retentativas controladas e preservar a última base válida, em vez de remover redes sociais quando a fonte estiver temporariamente indisponível.
-
-O recurso complementar oficial foi confirmado em `consulta_cand_complementar_2026.zip`. Nele, `DS_SITUACAO_JULGAMENTO` contém a situação necessária para aplicar o recorte editorial de candidaturas deferidas ou aguardando julgamento. O CDN também rejeitou o download direto durante esta sessão; a rotina automática preservará o último snapshot válido quando a fonte não responder.
-
-Os arquivos complementares encaminhados não contêm Bahia nem Distrito Federal. A tentativa inicial de complementar esses estados pela API pública do portal falhou devido a uma rota incompleta no contexto carregado; a alternativa será usar a URL pública absoluta do endpoint, sem repetir a mesma chamada relativa.
-
-A consulta pela URL pública absoluta funcionou e exportou 1.861 registros de Bahia e Distrito Federal, com as situações Deferido, Aguardando julgamento e demais estados de candidatura. Esses dados serão usados apenas para completar o filtro editorial dessas duas unidades, sem substituir os arquivos oficiais já disponíveis para os demais estados.
-
-A interface atualizada foi validada no navegador: a lista pública mostra 20.482 candidaturas que atendem ao recorte editorial aplicado; ao filtrar Presidente, as 13 candidaturas titulares exibem a ação de adicionar à colinha. Os cards de suplentes exibem a candidatura principal associada e não podem ser selecionados isoladamente.
-
-No perfil público do DivulgaCandContas, a chamada de detalhe foi identificada no formato `/divulga/rest/v1/candidatura/buscar/{ano}/{UF}/{idEleicao}/candidato/{SQ_CANDIDATO}`. A resposta desse endpoint será verificada para integrar redes sociais oficiais quando o pacote de dados abertos estiver indisponível.
-
-O detalhe público expõe `idCandidatoSuperior` e a lista `vices`, e a listagem pública disponibiliza a mesma chave para cada candidatura. O processamento passará a priorizar essa chave oficial ao vincular vices e suplentes; a aproximação por número, partido e UF permanecerá apenas como último recurso documentado quando a fonte não fornecer a relação.
-
-O detalhe de uma candidatura titular confirma que a lista `vices` inclui `sq_CANDIDATO` e dados de urna do integrante da chapa. Essa é a relação oficial que será priorizada para Presidência e Governo; para Senado, o processamento continuará buscando a composição declarada no perfil do titular para vincular os dois suplentes.
-
-O detalhe público de candidato contém uma lista `arquivos`; planos de governo aparecem com `codTipo` 5 e caminho oficial de arquivo. As rotas de download testadas por aproximação retornaram 404, portanto o buscador só publicará um botão depois de resolver uma URL confirmada pela API ou pelo recurso oficial de proposta de governo do TSE.
-
-No detalhe de uma suplência, o campo numérico de candidato superior pode ser zero, mas a lista `vices` contém o titular oficial completo, incluindo `sq_CANDIDATO`, nome, número, partido e UF. A consolidação deve usar esse objeto retornado pelo perfil do suplente, em vez de inferir a associação apenas por número e partido.
-
-Ao abrir a seção Propostas de uma candidatura presidencial no DivulgaCandContas, o portal confirma a existência de “Proposta de Governo”. O documento individual está associado à candidatura na lista `arquivos` do endpoint de detalhe. Fonte complementar: https://dadosabertos.tse.jus.br/dataset/ba2d7d69-5bf5-4379-8c91-664c11f75a2e/resource/433ac1f4-07dc-44a2-bcbe-c87a2073721a (pacote BR de propostas de governo).
-
-Uma coleta pública complementar de Alagoas, Bahia e Distrito Federal exportou 1.684 situações de candidatura, cobrindo as UFs que não estavam presentes nos CSVs complementares recebidos. Esses registros serão unidos exclusivamente pela chave pública `SQ_CANDIDATO` para permitir que o filtro Deferido/Aguardando julgamento cubra todas as unidades eleitorais.
-
-A interface foi validada com o snapshot ativo de 20.034 candidaturas no recorte editorial atual. O seletor “Cargo em disputa” e os atalhos por cargo filtram a lista; ao selecionar Presidente, o buscador oferece a cada resultado um link para o perfil oficial do TSE, onde a seção Propostas permite ler o plano de governo publicado.
-
-## Publicação e integração solicitadas
-
-- [x] Retirar qualquer referência ao Checa Aí da documentação e do escopo do projeto.
-- [x] Exibir no buscador a metodologia, as fontes oficiais e a cadência prevista de atualização.
-- [x] Tornar a seleção por cargo mais explícita, com opção de filtrar diretamente o cargo em disputa.
-- [x] Incluir links para planos de governo oficialmente publicados pelo TSE quando disponíveis.
-- [x] Configurar e verificar a rotina de atualização automática duas vezes ao dia no domínio publicado.
-- [x] Atualizar a documentação e preparar o snippet de embed com a URL pública do projeto.
-
-## Decisão de automação
-
-Foi escolhida a atualização automática duas vezes ao dia. A implementação deverá incluir:
-
-- [x] migrar o projeto para uma base com banco de dados, autenticação e tarefas agendadas;
-- [x] persistir a última sincronização válida e um histórico de execuções;
-- [x] importar somente candidaturas deferidas ou aguardando julgamento;
-- [x] registrar falhas de download sem substituir os dados publicados;
-- [x] proteger o painel de apontamentos com acesso autenticado.
-
-A rota correta do detalhe individual foi confirmada como `/candidato/{regiao}/{uf}/{idEleicao}/{idCandidato}/{ano}/{sgUe}`. A tentativa inicial não atualizou a tela porque a aplicação preservou o estado da lista; a próxima consulta usará diretamente o endpoint correspondente, evitando depender da transição visual da rota.
-
-Os parâmetros `idCandidato`, `ano`, `idEleicao`, `UF` e `sgUe` são efetivamente usados no módulo de detalhe e nas consultas de prestação de contas. A próxima investigação buscará a chamada de serviço que hidrata o objeto principal de candidato, onde deve estar a `fotoUrl` quando ela estiver publicável.
-
-## Auditoria e correções solicitadas
-
-- [x] Auditar e corrigir os vínculos entre titulares, vices e suplentes somente com relações publicadas em fontes oficiais do TSE.
-- [x] Tornar a ação de adicionar candidaturas à colinha inequívoca, funcional e disponível nos perfis elegíveis permitidos pela regra editorial.
-- [x] Reescrever o fluxo de apontamento para deixar explícito que ele aceita qualquer erro ou inconsistência de informação do candidato.
-- [x] Substituir links genéricos de perfil por links diretos para o plano de governo oficial quando o arquivo estiver publicado pelo TSE.
-- [x] Auditar a integridade do snapshot, os filtros, cards, redes sociais, fotos, exportação PDF, área editorial e links externos, sem criar relações não confirmadas.
-- [x] Configurar e documentar a atualização automática e como o embed passa a refletir o mesmo snapshot publicado, sem simular uma execução não observada.
-
-## Verificações finais de auditoria
-
-- [x] Verificar a proteção da área `/revisao` e documentar a limitação de auditoria autenticada imposta pelo CAPTCHA externo, sem simular sessão administrativa.
-- [x] Testar uma amostra de links externos publicados nos cards, incluindo redes sociais oficiais, e registrar os destinos verificados.
-- [x] Documentar que a validação do conteúdo autenticado de `/revisao` foi bloqueada por CAPTCHA externo, preservando o acesso protegido sem simular uma sessão administrativa.
-
-## Contingência operacional de atualização
-
-- [x] Criar uma rota autenticada de importação de arquivos oficiais já obtidos pelo navegador, sem aceitar fontes não autorizadas.
-- [x] Configurar uma tarefa de contingência com navegador para baixar os três arquivos oficiais do TSE e encaminhá-los à rota segura.
-- [x] Executar uma importação ponta a ponta e registrar o novo snapshot ativo, com redes sociais oficiais preservadas.
-- [x] Remover da página pública a consulta direta de autenticação que poderia iniciar uma sessão desnecessária.
-- [x] Restringir no cliente o redirecionamento automático de login às rotas privadas.
-
-## Ajustes editoriais finais
-
-- [x] Tornar o domínio publicado acessível publicamente para uso no iframe do portal Terra (confirmado em 20/08/2026 com carregamento anônimo da aplicação).
-- [x] Diagnosticar e documentar a falha no login da conta proprietária que bloqueia a alteração de visibilidade pública.
-- [x] Regularizar a visibilidade por compartilhamento para acesso de qualquer pessoa com o link.
-- [x] Corrigir a visibilidade de publicação para que `/` responda publicamente sem `302` para o login e validar o iframe no domínio final (HTTP 200, sem `X-Frame-Options` ou política CSP que bloqueie frames).
-- [x] Revalidar a propagação do snapshot ativo no embed depois que o domínio público estiver acessível sem autenticação (snapshot renderizado: 20.481 candidaturas).
-- [x] Corrigir rótulos e textos da busca para português editorial em caixa normal, sem capitalização integral desnecessária.
-- [x] Aumentar a área de foto nos cards de candidatos preservando proporção, qualidade e responsividade.
-
-A navegação foi solicitada explicitamente pela rota interna de detalhe para o candidato de teste. A leitura seguinte verificará se a interface a processou e quais recursos públicos foram requisitados, sem alterar dados ou submeter qualquer formulário externo.
-
-## Arquivos de integração para o portal
-
-- [x] Preparar e validar uma página HTML independente para homologar o iframe e um snippet compacto de embed para o portal Terra.
-
-## Auditoria da sincronização diária
-
-- [ ] Verificar a primeira execução real de `election-sync-daily` pelo identificador informado, confirmando horário, resultado, totais importados e indicador de alerta somente com evidência do histórico.
-
-Em 26/08/2026, o identificador informado não pertenceu a este projeto. A única rotina diária ativa do projeto apresentou falhas registradas e nenhuma execução bem-sucedida; por isso, esta confirmação permanece pendente e não foi marcada como concluída.
+- [x] Abrir a referência visual e as configurações originais do buscador e alinhar as novas telas exatamente ao design já estabelecido.
+- [x] Modelar candidaturas com identificação TSE, nome, nome de urna, foto, cargo, partido, UF, situação e categoria de disputa.
+- [x] Classificar automaticamente candidaturas como `em_disputa` ou `fora_da_disputa` durante a importação oficial do TSE a partir de `DS_SITUACAO_CANDIDATURA`.
+- [x] Criar a busca principal para candidaturas em disputa.
+- [x] Criar a rota e a página `Fora da Disputa` para situações terminais: Indeferido, Renúncia, Cassado, Cancelado, Falecido e Pedido não conhecido.
+- [x] Exibir na página de fora da disputa cards com foto, nome de urna, cargo, partido e situação oficial do TSE.
+- [x] Adicionar filtros por nome, UF, cargo e partido na página de fora da disputa.
+- [x] Criar o botão `Reportar erro` em cards da busca principal e de fora da disputa.
+- [x] Implementar formulário de reporte com as opções `não está mais concorrendo` e `informação incorreta`.
+- [x] Criar a tabela de reportes com os campos id, sq_candidato, nm_candidato, tipo_problema, descricao, email_contato, status e criado_em.
+- [x] Criar procedimentos para registrar, listar e atualizar o status dos reportes.
+- [x] Criar rota protegida do dono para administrar reportes pendentes, verificados e resolvidos.
+- [x] Adicionar navegação visível no cabeçalho entre a busca principal e `Fora da Disputa`.
+- [x] Cobrir a classificação e o fluxo de reportes com testes Vitest.
+- [x] Salvar checkpoint do projeto após a validação final e entregar a versão implementada.
+- [x] Configurar envio verificável de e-mail para artur.santos@telefonica.com a cada reporte de erro recebido.
+- [x] Configurar envio verificável de e-mail para artur.santos@telefonica.com a cada comentário ou sugestão recebido.
+- [x] Configurar o Resend com o remetente de teste autorizado e validar a entrega de um e-mail ao dono.
+- [x] Corrigir a metodologia para declarar exclusivamente a base de dados do TSE, sem expor links de arquivos ao público.
+- [x] Investigar e corrigir a ausência de candidaturas na base exibida pelo buscador.
+- [x] Validar o handler de sincronização em sucesso e falha com mock do envio de e-mail ao dono.
+- [x] Revalidar em navegador o formulário de reporte após a correção e confirmar as opções exigidas.
+- [x] Registrar uma checagem final dos fluxos auditados: sincronização, reporte, comentários, painel do dono, metodologia e colinha.
+- [x] Salvar o checkpoint final da versão concluída após as correções da auditoria.
+- [x] Consolidar no relatório de auditoria as evidências de comentários e sugestões, painel protegido do dono e widget de metodologia junto aos demais fluxos validados.
+- [x] Criar canal de comentários e sugestões sobre a página, com alerta interno ao dono e gestão no painel protegido.
+- [x] Abrir a metodologia em um widget na mesma página, sem navegar para outra rota.
+- [x] Alterar a ação de retorno para “Voltar para o Buscador de Candidaturas”.
+- [x] Inserir antes da colinha a explicação oficial dos dois turnos das eleições de 2026 com datas, horário e cargos.
+- [x] Acessar a referência publicada autenticada, ou receber capturas fiéis, para comparar o buscador visualmente antes da conclusão.
+- [x] Alinhar as telas novas ao fundo branco, laranja Terra #ff5a00, tipografia Lora/Manrope e cabeçalho “Eleições no Terra”.
+- [x] Revisar filtros e cards lado a lado com a referência publicada real e aplicar ajustes residuais antes da conclusão.
+- [x] Restaurar a estrutura de cabeçalho, banner, filtros, contador e paginação conforme a captura do buscador publicado.
+- [x] Adicionar ação de abrir o detalhe do candidato com planos de governo e redes sociais oficiais, quando disponíveis.
+- [x] Implementar colinha de candidatos selecionados com nome, número e remoção individual.
+- [x] Explicar na interface que os reportes enviados pelo botão de cada card são recebidos e administrados exclusivamente no painel protegido do dono.
+- [x] Corrigir a rota de “Ver metodologia e fontes” no rodapé e apresentar as fontes oficiais utilizadas.
+- [x] Revalidar em desktop e mobile a fidelidade da interface em relação à captura fornecida.
+- [x] Restringir a importação e a exibição de dados às fontes oficiais do TSE já definidas no fluxo do buscador.
+- [x] Exibir o nome explícito de cada rede social oficial importada, como Instagram, Facebook, X, YouTube ou TikTok, sem rótulos genéricos.
+- [x] Diagnosticar a ausência de fotos oficiais no snapshot importado e recuperar somente as imagens referenciadas pelo TSE.
+- [x] Rastrear a regressão que removeu fotos, planos de governo e vínculos oficiais presentes na versão anterior.
+- [x] Concluir a busca nos artefatos, históricos e arquivos preservados pela fonte anterior de fotos, registrando sua indisponibilidade.
+- [x] Mapear e testar os ZIPs de fotos oficiais do TSE indicados pelo usuário; diante do bloqueio do CDN, substituir a dependência por endpoint individual oficial.
+- [x] Validar as páginas nacional e regionais do DivulgaCandContas e recuperar fotos oficiais por associação determinística de UF e candidatura.
+- [x] Revalidar explicitamente as rotas regionais Norte, Nordeste, Centro-Oeste, Sudeste e Sul do DivulgaCandContas, documentando sua estabilidade ou limitação.
+- [x] Confirmar no relatório persistido a evidência consolidada das cinco rotas regionais e da instabilidade em Norte/Nordeste.
+- [x] Importar e exibir as fotos oficiais disponíveis, sem fabricar imagens quando não houver arquivo oficial correspondente.
+- [x] Recuperar planos de governo e redes sociais somente por detalhes oficiais do TSE sob demanda, sem preencher dados ausentes por outras fontes.
+- [x] Consultar sob demanda o detalhe oficial do DivulgaCandContas e exibir apenas redes e proposta de governo publicadas pelo TSE.
+- [x] Extrair e usar o URL oficial direto do documento de proposta de governo do TSE quando ele existir.
+- [x] Revalidar no navegador que o botão de proposta abre o documento oficial correto, e não apenas a ficha do candidato.
+- [x] Encaminhar a consulta oficial de detalhes pelo servidor para evitar bloqueio de origem ao abrir a ficha no buscador.
+- [x] Validar uma amostra representativa por UF das URLs oficiais de foto e registrar sucessos e falhas antes do checkpoint.
+- [x] Confirmar o comportamento visual quando o endpoint oficial não disponibilizar uma foto, sem persistir fallback inventado.
+- [x] Aplicar no diálogo de detalhes a detecção da silhueta institucional do TSE e validar seu fallback textual.
+- [x] Incluir os testes de interface de fotos oficiais na configuração Vitest executada pelo projeto.
+- [x] Reorganizar a grade e os cards para recuperar a hierarquia editorial de quatro colunas mostrada na referência, preservando filtros e funcionalidades já aprovadas.
+- [x] Validar dados, fotos, classificações e apresentação responsiva antes do novo checkpoint.
+- [x] Corrigir o enquadramento da foto no diálogo de informações para evitar ampliação excessiva e corte inadequado.
+- [x] Garantir quatro cards por linha na grade desktop, preservando a resposta em telas menores.
+- [x] Substituir o código técnico `#NE` por uma situação de candidatura didática baseada exclusivamente na legenda oficial do TSE.
+- [x] Confirmar na legenda oficial do TSE a equivalência pública do código `#NE` e ajustar a redação exibida se necessário.
+- [x] Exibir de forma clara a frequência e a última data de atualização dos dados oficiais.
+- [x] Informar na interface a sincronização oficial diária às 9h, no horário de Brasília.
+- [x] Publicar a versão com o handler de sincronização e ativar a programação diária às 9h de Brasília.
+- [x] Confirmar a próxima execução e os alertas de e-mail da programação diária ativa.
+- [x] Indicar claramente na interface que a programação diária escolhida será ativada após a publicação da versão.
+- [x] Atualizar a interface e a metodologia para confirmar que a rotina diária às 9h de Brasília já está ativa.
+- [x] Desativar a programação assistida concorrente para manter apenas a sincronização diária publicada às 9h de Brasília.
+- [x] Limitar a busca principal e a página Fora da Disputa a no máximo 10 candidaturas por página, preservando filtros e paginação.
+- [x] Tornar o nome de cada candidato explicitamente identificável e anteceder a sigla/descrição partidária pelo rótulo “Partido:” nos cards.
+- [x] Simplificar a grade para exibir somente o nome de urna no card e deixar o nome completo exclusivamente no diálogo de informações.
+- [x] Corrigir o alinhamento dos filtros e ordenar as candidaturas pelo nome completo oficial do TSE, preservando o nome de urna nos cards.
+- [x] Baixar, inspecionar e importar o arquivo oficial de redes sociais do TSE indicado pelo usuário.
+- [x] Executar auditoria final de busca, detalhes, fotos, planos, redes, classificação, reportes, comentários, painel do dono, sincronização e alertas por e-mail.
+- [x] Executar nova auditoria integral após a indisponibilidade da plataforma, corrigindo falhas verificáveis e registrando evidências atualizadas de dados, interface, e-mails e rotina diária.
+- [x] Persistir o relatório da auditoria pós-indisponibilidade com evidências de testes, banco, interface, histórico da sincronização e e-mails.
+- [x] Atualizar o registro da agenda diária com a execução bem-sucedida, `emailAlertSent: true` e o recálculo após a indisponibilidade.
+- [x] Atualizar a chamada do cabeçalho para “Conheça as candidaturas registradas e faça sua colinha eleitoral.”
+- [x] Simplificar a descrição geral dos turnos conforme o texto solicitado e inserir as vírgulas nos títulos do 1º e 2º turno.
+- [x] Exibir 12 candidaturas por página, preservando filtros e paginação nas duas listas.
+- [x] Ordenar os cargos do filtro na sequência: presidente, vice-presidente, governador, vice-governador, senador, deputado federal, deputado estadual ou distrital.
+- [x] Auditar os perfis sociais persistidos contra o arquivo oficial do TSE e registrar eventuais inconsistências.
+- [x] Auditar situações oficiais de candidatura para confirmar se há registros indeferidos, renúncias ou outras situações terminais no arquivo sincronizado.
+- [x] Auditar o histórico recente da rotina diária e confirmar a atualização mais recente disponível após a indisponibilidade.
+- [x] Normalizar somente aliases verificáveis de plataformas sociais (como bsky.app e kwai-video.com), sem alterar URLs oficiais do TSE.
+- [x] Recuperar a atualização diária não executada com uma importação manual dos três arquivos oficiais atuais do TSE e registrar o resultado.
+- [x] Fazer a sincronização de redes sociais substituir o snapshot anterior pelo arquivo oficial atual, removendo perfis que o TSE não publica mais.
+- [x] Fazer a sincronização de candidaturas e planos substituir o snapshot anterior pelos arquivos oficiais atuais do TSE.
+- [x] Persistir a reconciliação entre o ZIP oficial de redes sociais de 24/08/2026 e a base gravada, incluindo a inconsistência encontrada e a correção aplicada.
+- [x] Persistir o resultado da recuperação manual de 25/08/2026, com fontes oficiais, totais importados e confirmação do alerta por e-mail.
+- [x] Exibir a data e hora da última sincronização bem-sucedida, separada da data de geração do arquivo do TSE.
+- [x] Remover vices da seleção direta e exibi-los vinculados às chapas dos titulares correspondentes.
+- [x] Pesquisar os filtros do DivulgaCand nas rotas nacionais e regionais e importar no máximo um plano oficial por candidatura elegível.
+- [x] Garantir que o botão do plano abra diretamente o único documento oficial do TSE em nova guia.
+- [x] Criar colinha eleitoral imprimível com a identidade editorial do site e organização de números por cargo.
+- [x] Manter o último snapshot oficial funcional durante falhas do TSE ou da plataforma e registrar o estado de degradação com transparência.
+- [x] Configurar e documentar a sinalização diária dos resultados de sincronização nesta conversa, sem criar conversas paralelas quando a plataforma permitir.
+- [x] Gerar um espelho estático de contingência a partir do último snapshot oficial, sem fonte alternativa de dados.
+- [x] Configurar e publicar o espelho gratuito em GitHub Pages, mantendo-o independente da disponibilidade do site principal.
+- [x] Enviar o pacote de contingência ao repositório público `artursantos-prog/terra-votos` e ativar sua publicação por GitHub Pages.
+- [x] Resolver a autorização de gravação do GitHub para enviar o commit local `aeb1a3c` ao repositório `artursantos-prog/terra-votos`.
+- [x] Consolidar a validação final de todos os itens combinados e definir uma alternativa de contingência que não exija envio manual de arquivos.
+- [x] Documentar a limitação de failover automático sem domínio próprio e o procedimento de ativação futura por DNS.
+- [x] Documentar o bloqueio de autenticação no Cloudflare e no GitHub Pages e os requisitos para retomar a publicação externa.
+- [x] Remover dos cards a redação técnica de “Chapa” e qualquer referência a planos de governo, exibindo o vice de modo natural apenas quando houver vínculo oficial.
+- [x] Restringir as redes sociais públicas a X, Instagram, Facebook, TikTok e YouTube, ocultando demais domínios sem inventar perfis ausentes.
+- [x] Simplificar o aviso público para informar somente que a atualização é diária às 9h.
+- [x] Investigar no DivulgaCand as situações atualizadas e os planos oficiais ausentes, preservando no máximo um documento direto por candidatura.
+- [x] Registrar diferenças entre snapshots oficiais e enviar por e-mail, após cada sincronização diária, um resumo detalhado das inclusões, alterações e remoções detectadas.
+- [x] Ampliar a reconciliação de situação oficial via DivulgaCand para os demais cargos e validar uma amostra fora do Executivo na base e na interface.
+- [x] Preservar a última situação oficial específica quando o ZIP diário ainda trouxer apenas “#NE” e a listagem atualizada falhar parcialmente.
+- [x] Reorganizar o diálogo de informações para que os blocos de dados permaneçam integralmente legíveis, sem rolagem horizontal e sem excesso de rolagem vertical.
+- [x] Simplificar a apresentação de cada vice no diálogo para nome, “Vice” e partido, sem repetir o cargo completo.
+- [x] Limitar a colinha às vagas eleitorais de cada cargo e confirmar a substituição quando uma seleção ultrapassar a capacidade disponível.
+- [x] Ajustar a colinha impressa para representar as duas vagas de senador e as capacidades corretas dos demais cargos.
+- [x] Criar uma rota incorporável com documentação de iframe para o portal Terra, sempre servindo os dados da versão publicada mais recente.
+- [x] Executar auditoria final completa de dados, busca, detalhes, colinha, impressão, reportes, embed e atualização automática antes da entrega.
+- [x] Produzir uma prévia verificável da impressão da colinha com as duas vagas de senador antes da entrega.
+- [x] Comprovar em execução que o embed publicado reflete uma atualização de dados sem intervenção manual do portal.
+- [x] Executar uma sincronização oficial controlada e registrar a mudança refletida na mesma URL incorporada sem ação no portal Terra.
+- [x] Confirmar no domínio público do embed os totais da sincronização oficial controlada, sem editar o portal Terra.
+- [x] Investigar e explicar o bloqueio de escrita da integração no repositório GitHub `artursantos-prog/terra-votos`, sem repetir tentativas de publicação enquanto a contingência externa estiver pausada.
+- [x] Verificar uma única vez o acesso efetivo de escrita ao repositório `artursantos-prog/terra-votos` após a reautorização realizada pelo responsável.
+- [x] Validar o GitHub Pages ativado pelo responsável e registrar o endereço público do espelho de contingência.
+- [x] Corrigir o espelho externo publicado para refletir o snapshot oficial vigente de 20.247 candidaturas, em vez do pacote anterior de 20.513 registros.
+- [x] Atualizar o espelho do GitHub uma única vez após cada sincronização oficial diária das 9h, incluindo ajustes manuais pendentes na mesma publicação consolidada.
+- [x] Alterar o motivo de reporte na página Fora da Disputa de “O candidato não está mais concorrendo” para “O candidato está concorrendo”, preservando o texto atual na lista Em disputa.
+- [x] Vincular o 1º e o 2º suplentes de Senado ao titular oficial, removendo-os dos filtros e resultados diretos e exibindo-os como integrantes da chapa do senador.
+- [x] Remover BR do filtro público de Estado, mantendo candidaturas nacionais disponíveis pelo filtro de cargo.
+- [x] Executar uma verificação final dos dados, filtros, chapas, colinha, reportes, embed, sincronização diária e espelho GitHub publicado.
+- [x] Confirmar nesta conversa o resultado da sincronização oficial mais recente e o respectivo estado persistido.
+- [x] Auditar a atualização de hoje na página principal, no embed, no espelho GitHub e no alerta diário por e-mail, corrigindo divergências verificáveis.
+- [x] Disparar o alerta diário por e-mail e a atualização do espelho GitHub em paralelo após o snapshot oficial, reduzindo o risco de timeout; reenviar e confirmar o alerta corretivo quando necessário.
+- [x] Auditar detalhadamente a atualização de candidaturas, situações, planos, redes, página Fora da Disputa, e-mail, embed e espelho GitHub com fontes exclusivamente oficiais do TSE.
+- [x] Criar painel privado do responsável para revisar reportes e sugestões, consultar a evidência oficial do TSE, aprovar ou recusar a aplicação controlada de ajustes e registrar a decisão para o próximo ciclo diário.
+- [x] Refletir decisões administrativas aprovadas de forma controlada no buscador e no embed, preservando a reconciliação diária autoritativa do TSE.
+- [x] Trocar o texto do campo de busca para “Buscar por nome, número, estado, cargo e partido”.
+- [x] Garantir que o texto completo do campo de busca permaneça legível nos tamanhos públicos de tela.
+- [x] Corrigir a rota publicada de acesso ao painel privado de reportes, que retornou 404 ao responsável.
+- [x] Diagnosticar e corrigir a divergência que mantém o painel privado em 404 no domínio público apesar da rota funcional no desenvolvimento.
+- [x] Corrigir o redirecionamento pós-login para que o responsável retorne ao painel privado de reportes, e não à busca pública.
+- [x] Reverter o reporte de teste aprovado para a situação oficial corrente do TSE e remover a decisão indevida do painel.
+- [x] Corrigir o botão “Consultar TSE” para apresentar uma ficha oficial verificável antes de decisões administrativas.
+- [x] Adicionar exclusão administrativa de sugestões e reportes de teste no painel privado.
+- [x] Manter o espelho GitHub atualizado apenas com a parte pública após a rotina diária, sem publicar a página ou dados administrativos do painel.
+- [x] Executar auditoria final imediatamente após a próxima sincronização diária oficial do TSE, confirmando dados, páginas, embed, painel, espelho GitHub e alerta por e-mail nesta conversa.
+- [x] Publicar no repositório GitHub conectado o código completo, as migrações, os testes e a documentação do projeto, excluindo segredos e arquivos operacionais temporários.
+- [x] Auditar integralmente e publicar no GitHub todos os arquivos versionáveis do projeto, incluindo código, migrações, testes, documentação e configurações, excluindo apenas segredos e artefatos operacionais.
+- [x] Atualizar a branch de código-fonte no GitHub após cada sincronização diária oficial das 09h, no mesmo ciclo do espelho público e sem criar nova agenda concorrente.
+- [x] Simplificar o placeholder da busca pública para “Buscar por nome”.
+- [x] Adicionar compartilhamento da colinha, com compartilhamento nativo quando disponível e caminhos compatíveis para WhatsApp e Instagram.
+- [x] Fazer “Consultar TSE” abrir em nova guia a ficha pública individual correta do candidato no DivulgaCand, sem depender de endpoint técnico.
+- [x] Simplificar as ações dos reportes para manter somente “Resolver” e “Excluir”.
+- [x] Preparar uma recomendação prática de auditoria independente em outra IA para a aplicação publicada.
+- [x] Substituir os botões separados de compartilhamento por um único botão “Compartilhar” com opções de WhatsApp e Instagram.
+- [x] Investigar a ausência relatada da candidatura `190002554290` do Rio de Janeiro, confrontando a ficha individual do DivulgaCand com a base publicada.
+- [x] Auditar a cobertura da base publicada contra o conjunto oficial vigente do TSE e corrigir exclusivamente divergências comprovadas.
+- [x] Aplicar a reposição interna autorizada usando os três ZIPs oficiais auditados e confirmar a inclusão dos registros identificados.
+- [x] Corrigir a duplicidade de suplente exibida para a nova candidatura de Senador no Rio de Janeiro, preservando apenas o vínculo oficial vigente do TSE.
+- [x] Reconciliar os sete registros presentes na listagem oficial em tempo real, mas ainda ausentes do ZIP oficial vigente, assim que o TSE os publicar nos três arquivos autorizados.
+- [x] Manter WhatsApp e Instagram exclusivamente dentro do menu único “Compartilhar” da colinha, sem atalhos externos.
+- [x] Exibir “Ver nova candidatura” em candidaturas fora da disputa quando o mesmo candidato possuir uma candidatura oficial vigente em Em disputa.
+- [x] Alinhar a paginação e o botão “Enviar comentário” no rodapé, conforme as referências visuais fornecidas.
+- [x] Preencher exclusivamente as chaves internas pseudonimizadas de vínculo a partir do ZIP oficial autorizado, sem alterar os demais dados eleitorais.
+- [x] Confirmar com evidências o ciclo de atualização comunicado por e-mail, a página pública, os embeds, o espelho GitHub Pages e a branch `source-code`.
+- [x] Produzir e entregar um arquivo `cloude.md` com a documentação integral, segura e atualizada do projeto.
+- [ ] Verificar o ciclo diário mais recente, a reflexão na página e no embed e a atualização correspondente das branches do GitHub.
+- [ ] Confirmar se os números repetidos refletem ausência de alterações oficiais ou falha de propagação.
+- [ ] Comunicar com evidências o estado do e-mail, da página, do embed, do GitHub Pages e da branch `source-code`.

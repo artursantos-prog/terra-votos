@@ -1,0 +1,350 @@
+[
+  {
+    "id": "d58fc30b-4eea-4286-a330-15511029e00e",
+    "name": "Candidatos - Informações complementares",
+    "url": "https://cdn.tse.jus.br/estatistica/sead/odsele/consulta_cand_complementar/consulta_cand_complementar_2026.zip",
+    "format": "CSV"
+  },
+  {
+    "id": "7c480cbf-7415-4237-8db7-8c8167542da9",
+    "name": "Redes sociais de candidatos",
+    "url": "https://cdn.tse.jus.br/estatistica/sead/odsele/consulta_cand/rede_social_candidato_2026.zip",
+    "format": "CSV"
+  },
+  {
+    "id": "1e093ea7-d2de-4e4c-92f6-77184b5f3c10",
+    "name": "AC - Fotos de candidatos",
+    "url": "https://cdn.tse.jus.br/estatistica/sead/eleicoes/eleicoes2026/fotos/foto_cand2026_AC_div.zip",
+    "format": "JPEG"
+  },
+  {
+    "id": "482f76a3-c275-4d8e-b617-5d26f80f78bb",
+    "name": "AL - Fotos de candidatos",
+    "url": "https://cdn.tse.jus.br/estatistica/sead/eleicoes/eleicoes2026/fotos/foto_cand2026_AL_div.zip",
+    "format": "JPEG"
+  },
+  {
+    "id": "112dd3c5-1f6d-498d-9c85-41f7b2667c27",
+    "name": "AM - Fotos de candidatos",
+    "url": "https://cdn.tse.jus.br/estatistica/sead/eleicoes/eleicoes2026/fotos/foto_cand2026_AM_div.zip",
+    "format": "JPEG"
+  },
+  {
+    "id": "64543bbb-d561-4678-8068-ebb188d9c2b0",
+    "name": "AP - Fotos de candidatos",
+    "url": "https://cdn.tse.jus.br/estatistica/sead/eleicoes/eleicoes2026/fotos/foto_cand2026_AP_div.zip",
+    "format": "JPEG"
+  },
+  {
+    "id": "383b7b3a-fdd6-4521-a3a3-b6fe25a0ed39",
+    "name": "BA - Fotos de candidatos",
+    "url": "https://cdn.tse.jus.br/estatistica/sead/eleicoes/eleicoes2026/fotos/foto_cand2026_BA_div.zip",
+    "format": "JPEG"
+  },
+  {
+    "id": "e8f0a648-b438-4117-814a-f32f4c4977c8",
+    "name": "BR - Fotos de candidatos",
+    "url": "https://cdn.tse.jus.br/estatistica/sead/eleicoes/eleicoes2026/fotos/foto_cand2026_BR_div.zip",
+    "format": "JPEG"
+  },
+  {
+    "id": "be039588-268d-441d-ad98-fab9e7839ceb",
+    "name": "CE - Fotos de candidatos",
+    "url": "https://cdn.tse.jus.br/estatistica/sead/eleicoes/eleicoes2026/fotos/foto_cand2026_CE_div.zip",
+    "format": "JPEG"
+  },
+  {
+    "id": "72b5832c-a4fe-49aa-b0e4-791901a99ef8",
+    "name": "DF - Fotos de candidatos",
+    "url": "https://cdn.tse.jus.br/estatistica/sead/eleicoes/eleicoes2026/fotos/foto_cand2026_DF_div.zip",
+    "format": "JPEG"
+  },
+  {
+    "id": "892b8391-89ba-44f0-824d-b2d49c61cc5a",
+    "name": "ES - Fotos de candidatos",
+    "url": "https://cdn.tse.jus.br/estatistica/sead/eleicoes/eleicoes2026/fotos/foto_cand2026_ES_div.zip",
+    "format": "JPEG"
+  },
+  {
+    "id": "160c5b78-9817-45a8-9c67-1ff664e47252",
+    "name": "GO - Fotos de candidatos",
+    "url": "https://cdn.tse.jus.br/estatistica/sead/eleicoes/eleicoes2026/fotos/foto_cand2026_GO_div.zip",
+    "format": "JPEG"
+  },
+  {
+    "id": "d1b0b207-2510-4498-967c-9cf11d218c78",
+    "name": "MA - Fotos de candidatos",
+    "url": "https://cdn.tse.jus.br/estatistica/sead/eleicoes/eleicoes2026/fotos/foto_cand2026_MA_div.zip",
+    "format": "JPEG"
+  },
+  {
+    "id": "7a919286-5e8b-4ca2-b655-eaf16ee86630",
+    "name": "MG - Fotos de candidatos",
+    "url": "https://cdn.tse.jus.br/estatistica/sead/eleicoes/eleicoes2026/fotos/foto_cand2026_MG_div.zip",
+    "format": "JPEG"
+  },
+  {
+    "id": "af942fcc-8dd5-4338-b19a-c35ebed7cec1",
+    "name": "MS - Fotos de candidatos",
+    "url": "https://cdn.tse.jus.br/estatistica/sead/eleicoes/eleicoes2026/fotos/foto_cand2026_MS_div.zip",
+    "format": "JPEG"
+  },
+  {
+    "id": "ce184315-269e-49fa-a0d7-fab95286e0f3",
+    "name": "MT - Fotos de candidatos",
+    "url": "https://cdn.tse.jus.br/estatistica/sead/eleicoes/eleicoes2026/fotos/foto_cand2026_MT_div.zip",
+    "format": "JPEG"
+  },
+  {
+    "id": "ec8cb889-cdde-4e18-b6ff-3be71080760c",
+    "name": "PA - Fotos de candidatos",
+    "url": "https://cdn.tse.jus.br/estatistica/sead/eleicoes/eleicoes2026/fotos/foto_cand2026_PA_div.zip",
+    "format": "JPEG"
+  },
+  {
+    "id": "f3fd6ec8-70a9-4b99-b9de-fb628e7dd14b",
+    "name": "PB - Fotos de candidatos",
+    "url": "https://cdn.tse.jus.br/estatistica/sead/eleicoes/eleicoes2026/fotos/foto_cand2026_PB_div.zip",
+    "format": "JPEG"
+  },
+  {
+    "id": "6a3b9da4-ce96-41b5-b821-c58f521f51fd",
+    "name": "PE - Fotos de candidatos",
+    "url": "https://cdn.tse.jus.br/estatistica/sead/eleicoes/eleicoes2026/fotos/foto_cand2026_PE_div.zip",
+    "format": "JPEG"
+  },
+  {
+    "id": "7cc99120-3eb6-4a5c-bde3-61fb22eab585",
+    "name": "PI - Fotos de candidatos",
+    "url": "https://cdn.tse.jus.br/estatistica/sead/eleicoes/eleicoes2026/fotos/foto_cand2026_PI_div.zip",
+    "format": "JPEG"
+  },
+  {
+    "id": "2e0edc7d-8bf0-4ec9-b54a-6fbe5bb6f430",
+    "name": "PR - Fotos de candidatos",
+    "url": "https://cdn.tse.jus.br/estatistica/sead/eleicoes/eleicoes2026/fotos/foto_cand2026_PR_div.zip",
+    "format": "JPEG"
+  },
+  {
+    "id": "07098d12-a29a-4b5a-96a0-52984465b1d6",
+    "name": "RJ - Fotos de candidatos",
+    "url": "https://cdn.tse.jus.br/estatistica/sead/eleicoes/eleicoes2026/fotos/foto_cand2026_RJ_div.zip",
+    "format": "JPEG"
+  },
+  {
+    "id": "7a697c44-7801-43f5-8950-9ac6341c0eba",
+    "name": "RN - Fotos de candidatos",
+    "url": "https://cdn.tse.jus.br/estatistica/sead/eleicoes/eleicoes2026/fotos/foto_cand2026_RN_div.zip",
+    "format": "JPEG"
+  },
+  {
+    "id": "b9e35c4a-0912-4ad4-8086-7db9eba67b29",
+    "name": "RO - Fotos de candidatos",
+    "url": "https://cdn.tse.jus.br/estatistica/sead/eleicoes/eleicoes2026/fotos/foto_cand2026_RO_div.zip",
+    "format": "JPEG"
+  },
+  {
+    "id": "75331bb4-c14b-4817-a3c3-c1ab64bae702",
+    "name": "RR - Fotos de candidatos",
+    "url": "https://cdn.tse.jus.br/estatistica/sead/eleicoes/eleicoes2026/fotos/foto_cand2026_RR_div.zip",
+    "format": "JPEG"
+  },
+  {
+    "id": "04dfe503-a4d2-488e-bded-e5368025bcbb",
+    "name": "RS - Fotos de candidatos",
+    "url": "https://cdn.tse.jus.br/estatistica/sead/eleicoes/eleicoes2026/fotos/foto_cand2026_RS_div.zip",
+    "format": "JPEG"
+  },
+  {
+    "id": "893ddc5a-bf4a-4c90-890d-7eae2a4527fb",
+    "name": "SC - Fotos de candidatos",
+    "url": "https://cdn.tse.jus.br/estatistica/sead/eleicoes/eleicoes2026/fotos/foto_cand2026_SC_div.zip",
+    "format": "JPEG"
+  },
+  {
+    "id": "a76928e8-fed7-4361-a592-0c40824ac6ed",
+    "name": "SE - Fotos de candidatos",
+    "url": "https://cdn.tse.jus.br/estatistica/sead/eleicoes/eleicoes2026/fotos/foto_cand2026_SE_div.zip",
+    "format": "JPEG"
+  },
+  {
+    "id": "a2e40197-4d32-4282-87a5-59023a7ea3cd",
+    "name": "SP - Fotos de candidatos",
+    "url": "https://cdn.tse.jus.br/estatistica/sead/eleicoes/eleicoes2026/fotos/foto_cand2026_SP_div.zip",
+    "format": "JPEG"
+  },
+  {
+    "id": "50c99af8-c12e-4e87-a966-a60b0ac21c8b",
+    "name": "TO - Fotos de candidatos",
+    "url": "https://cdn.tse.jus.br/estatistica/sead/eleicoes/eleicoes2026/fotos/foto_cand2026_TO_div.zip",
+    "format": "JPEG"
+  },
+  {
+    "id": "892e69b3-5fee-4c88-8492-489c8971f560",
+    "name": "AC - Proposta de governo",
+    "url": "https://cdn.tse.jus.br/estatistica/sead/odsele/proposta_governo/proposta_governo_2026_AC.zip",
+    "format": "PDF"
+  },
+  {
+    "id": "24b68abf-0223-4e8d-b5c6-233b17ebf1df",
+    "name": "AL - Proposta de governo",
+    "url": "https://cdn.tse.jus.br/estatistica/sead/odsele/proposta_governo/proposta_governo_2026_AL.zip",
+    "format": "PDF"
+  },
+  {
+    "id": "d1f51a6d-173f-45e4-a895-3ba71569d8c7",
+    "name": "AM - Proposta de governo",
+    "url": "https://cdn.tse.jus.br/estatistica/sead/odsele/proposta_governo/proposta_governo_2026_AM.zip",
+    "format": "PDF"
+  },
+  {
+    "id": "d3a6d8f2-05b4-4f4f-bef0-cf43578eca18",
+    "name": "AP - Proposta de governo",
+    "url": "https://cdn.tse.jus.br/estatistica/sead/odsele/proposta_governo/proposta_governo_2026_AP.zip",
+    "format": "PDF"
+  },
+  {
+    "id": "83c4812f-6c19-4901-a933-e826a38ee5c4",
+    "name": "BA - Proposta de governo",
+    "url": "https://cdn.tse.jus.br/estatistica/sead/odsele/proposta_governo/proposta_governo_2026_BA.zip",
+    "format": "PDF"
+  },
+  {
+    "id": "433ac1f4-07dc-44a2-bcbe-c87a2073721a",
+    "name": "BR - Proposta de governo",
+    "url": "https://cdn.tse.jus.br/estatistica/sead/odsele/proposta_governo/proposta_governo_2026_BR.zip",
+    "format": "PDF"
+  },
+  {
+    "id": "46fb7c9b-6e64-4577-a847-f1545ccb860b",
+    "name": "CE - Proposta de governo",
+    "url": "https://cdn.tse.jus.br/estatistica/sead/odsele/proposta_governo/proposta_governo_2026_CE.zip",
+    "format": "PDF"
+  },
+  {
+    "id": "2ed2713f-62aa-4b4a-b663-ee2d9727d8a6",
+    "name": "DF - Proposta de governo",
+    "url": "https://cdn.tse.jus.br/estatistica/sead/odsele/proposta_governo/proposta_governo_2026_DF.zip",
+    "format": "PDF"
+  },
+  {
+    "id": "c1df9a86-90df-4f1f-a604-a0b55a1ffcae",
+    "name": "ES - Proposta de governo",
+    "url": "https://cdn.tse.jus.br/estatistica/sead/odsele/proposta_governo/proposta_governo_2026_ES.zip",
+    "format": "PDF"
+  },
+  {
+    "id": "c73b0699-89fc-4427-b1bb-71c0c2b30255",
+    "name": "GO - Proposta de governo",
+    "url": "https://cdn.tse.jus.br/estatistica/sead/odsele/proposta_governo/proposta_governo_2026_GO.zip",
+    "format": "PDF"
+  },
+  {
+    "id": "2533babc-f5ac-4097-81aa-0c3507c34ff2",
+    "name": "MA - Proposta de governo",
+    "url": "https://cdn.tse.jus.br/estatistica/sead/odsele/proposta_governo/proposta_governo_2026_MA.zip",
+    "format": "PDF"
+  },
+  {
+    "id": "72831fd0-1ace-4834-8d7e-746d190baeb0",
+    "name": "MG - Proposta de governo",
+    "url": "https://cdn.tse.jus.br/estatistica/sead/odsele/proposta_governo/proposta_governo_2026_MG.zip",
+    "format": "PDF"
+  },
+  {
+    "id": "7e96e31d-8b9e-419d-8689-f6394d77a003",
+    "name": "MS - Proposta de governo",
+    "url": "https://cdn.tse.jus.br/estatistica/sead/odsele/proposta_governo/proposta_governo_2026_MS.zip",
+    "format": "PDF"
+  },
+  {
+    "id": "dcd10ffa-2e30-4cfd-9747-b7e06f3d2376",
+    "name": "MT - Proposta de governo",
+    "url": "https://cdn.tse.jus.br/estatistica/sead/odsele/proposta_governo/proposta_governo_2026_MT.zip",
+    "format": "PDF"
+  },
+  {
+    "id": "a17ef84d-7f22-4a5f-8ce9-b8e5f78a9957",
+    "name": "PA - Proposta de governo",
+    "url": "https://cdn.tse.jus.br/estatistica/sead/odsele/proposta_governo/proposta_governo_2026_PA.zip",
+    "format": "PDF"
+  },
+  {
+    "id": "e0602f94-5fe6-40f1-b3f6-023790f42cb3",
+    "name": "PB - Proposta de governo",
+    "url": "https://cdn.tse.jus.br/estatistica/sead/odsele/proposta_governo/proposta_governo_2026_PB.zip",
+    "format": "PDF"
+  },
+  {
+    "id": "0be7c0ed-7e5f-406a-a676-5cafc31f4c70",
+    "name": "PE - Proposta de governo",
+    "url": "https://cdn.tse.jus.br/estatistica/sead/odsele/proposta_governo/proposta_governo_2026_PE.zip",
+    "format": "PDF"
+  },
+  {
+    "id": "27a69a77-5fae-485f-bd88-d4c8bbd5414c",
+    "name": "PI - Proposta de governo",
+    "url": "https://cdn.tse.jus.br/estatistica/sead/odsele/proposta_governo/proposta_governo_2026_PI.zip",
+    "format": "PDF"
+  },
+  {
+    "id": "9d178584-c623-463d-a8e7-241437a9d473",
+    "name": "PR - Proposta de governo",
+    "url": "https://cdn.tse.jus.br/estatistica/sead/odsele/proposta_governo/proposta_governo_2026_PR.zip",
+    "format": "PDF"
+  },
+  {
+    "id": "fe53384a-b57e-4dc5-bd87-04b0bb8d0941",
+    "name": "RJ - Proposta de governo",
+    "url": "https://cdn.tse.jus.br/estatistica/sead/odsele/proposta_governo/proposta_governo_2026_RJ.zip",
+    "format": "PDF"
+  },
+  {
+    "id": "c86c1bca-0f59-438f-bf8a-803f289698a1",
+    "name": "RN - Proposta de governo",
+    "url": "https://cdn.tse.jus.br/estatistica/sead/odsele/proposta_governo/proposta_governo_2026_RN.zip",
+    "format": "PDF"
+  },
+  {
+    "id": "1f306c5c-6eb7-4a03-8f60-315bb45a39cc",
+    "name": "RO - Proposta de governo",
+    "url": "https://cdn.tse.jus.br/estatistica/sead/odsele/proposta_governo/proposta_governo_2026_RO.zip",
+    "format": "PDF"
+  },
+  {
+    "id": "931ddc42-6831-45e2-b84f-b673a8386dab",
+    "name": "RR - Proposta de governo",
+    "url": "https://cdn.tse.jus.br/estatistica/sead/odsele/proposta_governo/proposta_governo_2026_RR.zip",
+    "format": "PDF"
+  },
+  {
+    "id": "8b8cb7e4-e05c-4fb2-bde7-a9ff8d8baf1f",
+    "name": "RS - Proposta de governo",
+    "url": "https://cdn.tse.jus.br/estatistica/sead/odsele/proposta_governo/proposta_governo_2026_RS.zip",
+    "format": "PDF"
+  },
+  {
+    "id": "a9f5e145-0cc2-4c20-a010-893b10b22547",
+    "name": "SC - Proposta de governo",
+    "url": "https://cdn.tse.jus.br/estatistica/sead/odsele/proposta_governo/proposta_governo_2026_SC.zip",
+    "format": "PDF"
+  },
+  {
+    "id": "4a15fa3e-c06b-4fca-b7eb-90e46dbe0eff",
+    "name": "SE - Proposta de governo",
+    "url": "https://cdn.tse.jus.br/estatistica/sead/odsele/proposta_governo/proposta_governo_2026_SE.zip",
+    "format": "PDF"
+  },
+  {
+    "id": "c8f84a67-6683-4d69-b1b3-64c24d0c797b",
+    "name": "SP - Proposta de governo",
+    "url": "https://cdn.tse.jus.br/estatistica/sead/odsele/proposta_governo/proposta_governo_2026_SP.zip",
+    "format": "PDF"
+  },
+  {
+    "id": "61da85ce-ef67-42fd-ae2a-8e6bd6765901",
+    "name": "TO - Proposta de governo",
+    "url": "https://cdn.tse.jus.br/estatistica/sead/odsele/proposta_governo/proposta_governo_2026_TO.zip",
+    "format": "PDF"
+  }
+]
