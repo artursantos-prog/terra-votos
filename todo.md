@@ -186,7 +186,7 @@
 - [x] Aplicar e validar o ajuste nos layouts desktop, celular e embed, preservando a responsividade.
 - [x] Revisar os testes e a captura visual do detalhe do candidato em viewport móvel antes da publicação.
 
-- [ ] Auditar em celular todas as telas e fluxos públicos, incluindo busca, filtros, cards, detalhes, colinha, compartilhamento, rodapé e embed.
-- [ ] Corrigir problemas de layout, navegação, toque, leitura e transbordamento encontrados na revisão móvel.
-- [ ] Validar a experiência móvel corrigida em diferentes larguras, além do desktop e do embed.
-- [ ] Publicar o código completo atualizado e seguro na branch `source-code` do GitHub, sem segredos ou artefatos privados.
+- [x] Auditar em celular todas as telas e fluxos públicos, incluindo busca, filtros, cards, detalhes, colinha, compartilhamento, rodapé e embed.
+- [x] Corrigir problemas de layout, navegação, toque, leitura e transbordamento encontrados na revisão móvel.
+- [x] Validar a experiência móvel corrigida em diferentes larguras, além do desktop e do embed.
+- [x] Publicar o código completo atualizado e seguro na branch `source-code` do GitHub, sem segredos ou artefatos privados.
