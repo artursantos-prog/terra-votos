@@ -168,6 +168,25 @@
 - [x] Preencher exclusivamente as chaves internas pseudonimizadas de vínculo a partir do ZIP oficial autorizado, sem alterar os demais dados eleitorais.
 - [x] Confirmar com evidências o ciclo de atualização comunicado por e-mail, a página pública, os embeds, o espelho GitHub Pages e a branch `source-code`.
 - [x] Produzir e entregar um arquivo `cloude.md` com a documentação integral, segura e atualizada do projeto.
-- [ ] Verificar o ciclo diário mais recente, a reflexão na página e no embed e a atualização correspondente das branches do GitHub.
-- [ ] Confirmar se os números repetidos refletem ausência de alterações oficiais ou falha de propagação.
-- [ ] Comunicar com evidências o estado do e-mail, da página, do embed, do GitHub Pages e da branch `source-code`.
+- [x] Verificar o ciclo diário mais recente, a reflexão na página e no embed e a atualização correspondente das branches do GitHub.
+- [x] Confirmar se os números repetidos refletem ausência de alterações oficiais ou falha de propagação.
+- [x] Comunicar com evidências o estado do e-mail, da página, do embed, do GitHub Pages e da branch `source-code`.
+
+- [x] Auditar o ciclo diário mais recente e confirmar se candidaturas, situações, fotos, redes, planos, página pública, embed, e-mail e GitHub foram atualizados.
+- [x] Ocultar por padrão a navegação e a página Fora da Disputa sem interromper a sincronização de seus dados no back-end.
+- [x] Adicionar ao painel administrativo um controle protegido para reativar ou ocultar a página Fora da Disputa.
+- [x] Testar a reversibilidade do controle, as rotas públicas, o embed e a continuidade da atualização diária.
+
+- [x] Reconciliar os registros conflitantes da sincronização de 07/09/2026 usando logs, estado persistido e evidência 2xx.
+- [x] Identificar e corrigir a causa do HTTP 403 do TSE no fluxo diário sem usar fonte não oficial.
+- [x] Garantir que falhas não enviem confirmação de sucesso, não marquem `emailAlertSent` e não publiquem GitHub Pages ou dados novos.
+- [x] Reexecutar a suíte e registrar a auditoria corretiva do ciclo diário.
+
+- [x] Separar visualmente os metadados de Cargo e Partido nos detalhes dos candidatos, evitando que fiquem colados.
+- [x] Aplicar e validar o ajuste nos layouts desktop, celular e embed, preservando a responsividade.
+- [x] Revisar os testes e a captura visual do detalhe do candidato em viewport móvel antes da publicação.
+
+- [ ] Auditar em celular todas as telas e fluxos públicos, incluindo busca, filtros, cards, detalhes, colinha, compartilhamento, rodapé e embed.
+- [ ] Corrigir problemas de layout, navegação, toque, leitura e transbordamento encontrados na revisão móvel.
+- [ ] Validar a experiência móvel corrigida em diferentes larguras, além do desktop e do embed.
+- [ ] Publicar o código completo atualizado e seguro na branch `source-code` do GitHub, sem segredos ou artefatos privados.

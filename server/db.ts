@@ -14,10 +14,12 @@ import {
   errorReports,
   governmentPlans,
   siteFeedback,
+  siteSettings,
   type FeedbackStatus,
   users,
 } from "../drizzle/schema";
 import { ENV } from './_core/env';
+import { OUTSIDE_DISPUTE_VISIBILITY_KEY, isOutsideDisputeVisible } from "@shared/siteVisibility";
 
 let _db: ReturnType<typeof drizzle> | null = null;
 
@@ -103,6 +105,25 @@ export async function getUserByOpenId(openId: string) {
   const result = await db.select().from(users).where(eq(users.openId, openId)).limit(1);
 
   return result.length > 0 ? result[0] : undefined;
+}
+
+export async function getOutsideDisputeVisibility(): Promise<boolean> {
+  const db = await getDb();
+  if (!db) return false;
+  const rows = await db.select({ enabled: siteSettings.enabled })
+    .from(siteSettings)
+    .where(eq(siteSettings.settingKey, OUTSIDE_DISPUTE_VISIBILITY_KEY))
+    .limit(1);
+  return isOutsideDisputeVisible(rows[0]?.enabled);
+}
+
+export async function setOutsideDisputeVisibility(enabled: boolean): Promise<boolean> {
+  const db = await getDb();
+  if (!db) throw new Error("Database is not available");
+  await db.insert(siteSettings)
+    .values({ settingKey: OUTSIDE_DISPUTE_VISIBILITY_KEY, enabled })
+    .onDuplicateKeyUpdate({ set: { enabled } });
+  return enabled;
 }
 
 const TERMINAL_CANDIDATE_STATUSES = new Set([

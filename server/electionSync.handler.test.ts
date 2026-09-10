@@ -95,6 +95,7 @@ describe("election sync import handler", () => {
 
     expect(state.statusCode).toBe(200);
     expect(state.body).toMatchObject({ ok: true, imported: 1, socialProfilesImported: 1, governmentPlansImported: 1, ticketMembersImported: 1, statusUpdatesImported: 1, emailAlertSent: true });
+    expect(fetch).toHaveBeenCalledTimes(3);
     expect(replaceCandidates).toHaveBeenCalledWith(expect.arrayContaining([expect.objectContaining({ sqCandidate: "1" })]));
     expect(replaceCandidateSocialProfiles).toHaveBeenCalledWith(expect.arrayContaining([expect.objectContaining({ sqCandidate: "1", label: "Instagram" })]));
     expect(replaceGovernmentPlans).toHaveBeenCalledWith([expect.objectContaining({ sqCandidate: "1", officialUrl: "https://divulgacandcontas.tse.jus.br/divulga/rest/arquivo/doc/42" })]);
@@ -128,6 +129,7 @@ describe("election sync import handler", () => {
       text: expect.stringContaining("não use fontes alternativas"),
     }));
     expect(recordElectionSyncFailure).toHaveBeenCalledWith("Unable to download import archive: HTTP 403");
+    expect(publishGithubFallbackSnapshot).not.toHaveBeenCalled();
   });
 
   it("retains statuses returned by an official cargo list when another cargo list fails", async () => {

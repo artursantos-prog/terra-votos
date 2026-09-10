@@ -432,10 +432,14 @@ export async function runOfficialElectionSync(payload: z.infer<typeof syncPayloa
       .map(mapTseSocialProfile)
       .filter((record): record is CandidateSocialImportRecord => record !== null);
     const previousSnapshot = await getElectionSyncSnapshot();
-    const [officialDocuments, statusUpdates] = await Promise.all([
+    // O ZIP oficial de candidaturas já traz DS_SITUACAO_CANDIDATURA para cada registro.
+    // A antiga varredura adicional por UF/cargo fazia centenas de chamadas ao DivulgaCand,
+    // incluindo BR/1, e podia gerar HTTP 403 e timeout do callback. Mantemos a fonte oficial
+    // do ZIP como autoritativa e consultamos detalhes oficiais apenas para planos, redes e chapas.
+    const [officialDocuments] = await Promise.all([
       discoverOfficialPlansAndTickets(records),
-      discoverOfficialStatuses(records),
     ]);
+    const statusUpdates = officialDocuments.statusUpdates;
     const changes = buildElectionSyncChangeDetails({
       previous: previousSnapshot,
       candidates: records,

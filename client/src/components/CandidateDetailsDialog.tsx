@@ -71,11 +71,11 @@ export default function CandidateDetailsDialog({ sqCandidate, open, onOpenChange
                 )}
               </div>
               <div className="min-w-0 space-y-5">
-                <dl className="grid grid-cols-2 gap-x-4 gap-y-4 text-sm sm:grid-cols-4">
-                  <div><dt className="text-xs font-extrabold uppercase tracking-[0.1em] text-[#8a817a]">Número</dt><dd className="mt-1 text-2xl font-extrabold text-[#ff5a00]">{detail.candidate.candidateNumber || "—"}</dd></div>
-                  <div><dt className="text-xs font-extrabold uppercase tracking-[0.1em] text-[#8a817a]">Cargo</dt><dd className="mt-1 font-semibold text-[#2d2926]">{detail.candidate.office}</dd></div>
-                  <div><dt className="text-xs font-extrabold uppercase tracking-[0.1em] text-[#8a817a]">Partido</dt><dd className="mt-1 font-semibold text-[#2d2926]">{detail.candidate.partyAcronym || detail.candidate.partyName || "Não informado"}</dd></div>
-                  <div><dt className="text-xs font-extrabold uppercase tracking-[0.1em] text-[#8a817a]">Situação</dt><dd className="mt-1 font-semibold text-[#2d2926]">{formatCandidateOfficialStatus(detail.candidate.officialStatus)}{candidateStatusExplanation(detail.candidate.officialStatus) ? <span className="mt-1 block text-xs font-normal leading-5 text-[#746e68]">{candidateStatusExplanation(detail.candidate.officialStatus)}</span> : null}</dd></div>
+                <dl className="grid min-w-0 grid-cols-1 gap-3 text-sm sm:grid-cols-2 lg:grid-cols-4">
+                  <div className="min-w-0 border border-[#eee7e1] bg-[#fffdfa] px-3 py-2.5"><dt className="text-xs font-extrabold uppercase tracking-[0.1em] text-[#8a817a]">Número</dt><dd className="mt-1 text-2xl font-extrabold leading-none text-[#ff5a00]">{detail.candidate.candidateNumber || "—"}</dd></div>
+                  <div className="min-w-0 border border-[#eee7e1] bg-[#fffdfa] px-3 py-2.5"><dt className="text-xs font-extrabold uppercase tracking-[0.1em] text-[#8a817a]">Cargo</dt><dd className="mt-1 break-words font-semibold leading-5 text-[#2d2926]">{detail.candidate.office}</dd></div>
+                  <div className="min-w-0 border border-[#eee7e1] bg-[#fffdfa] px-3 py-2.5"><dt className="text-xs font-extrabold uppercase tracking-[0.1em] text-[#8a817a]">Partido</dt><dd className="mt-1 break-words font-semibold leading-5 text-[#2d2926]">{detail.candidate.partyAcronym || detail.candidate.partyName || "Não informado"}</dd></div>
+                  <div className="min-w-0 border border-[#eee7e1] bg-[#fffdfa] px-3 py-2.5"><dt className="text-xs font-extrabold uppercase tracking-[0.1em] text-[#8a817a]">Situação</dt><dd className="mt-1 break-words font-semibold leading-5 text-[#2d2926]">{formatCandidateOfficialStatus(detail.candidate.officialStatus)}{candidateStatusExplanation(detail.candidate.officialStatus) ? <span className="mt-1 block text-xs font-normal leading-5 text-[#746e68]">{candidateStatusExplanation(detail.candidate.officialStatus)}</span> : null}</dd></div>
                 </dl>
 
                 <div className="grid gap-4 border-t border-[#eee7e1] pt-4 lg:grid-cols-2">

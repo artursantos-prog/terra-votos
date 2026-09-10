@@ -101,7 +101,7 @@ Excluir um reporte não apaga nem modifica dados eleitorais. A evidência eleito
 
 ## 6. Sincronização diária e alertas
 
-Há uma única rotina oficial de sincronização, programada para **09h no horário de Brasília**. Ela executa a importação a partir dos três ZIPs permitidos, atualiza a situação de candidaturas pelo DivulgaCand quando aplicável, gera o espelho GitHub Pages e aciona o alerta por e-mail ao responsável.
+Há uma única rotina oficial de sincronização, programada para **09h no horário de Brasília**. Ela executa a importação a partir dos três ZIPs permitidos, usa `DS_SITUACAO_CANDIDATURA` do ZIP oficial como fonte autoritativa da situação e consulta o DivulgaCand apenas para complementos oficiais, como planos, redes e vínculos de chapa, quando aplicável. Em seguida, gera o espelho GitHub Pages e aciona o alerta por e-mail ao responsável.
 
 | Item | Configuração |
 | --- | --- |
@@ -111,9 +111,9 @@ Há uma única rotina oficial de sincronização, programada para **09h no horá
 | Horário local | 09h em Brasília |
 | Acompanhamento posterior | Uma única rotina, às 09h30 em Brasília, sem concorrência de cron ou processos locais. |
 
-Depois de cada snapshot, o produto mantém o último conjunto oficial funcional em caso de indisponibilidade do TSE ou da plataforma. O aviso público distingue uma falha de atualização de uma ausência de dados.
+Depois de cada snapshot, o produto mantém o último conjunto oficial funcional em caso de indisponibilidade do TSE ou da plataforma. O aviso público distingue uma falha de atualização de uma ausência de dados. A antiga varredura adicional de listagens por UF e cargo foi retirada do ciclo diário porque gerava muitas chamadas ao DivulgaCand, incluindo a rota BR/1, que podia responder HTTP 403 e fazer o callback ultrapassar o limite do agendador.
 
-O e-mail deve detalhar o resultado, inclusões, alterações e remoções verificáveis. Se o callback do agendador exceder o prazo, não se deve declarar sucesso apenas pelo status do agendador: devem ser verificados o estado gravado no banco, a página, o embed, o espelho GitHub e o e-mail.
+O e-mail deve detalhar o resultado, inclusões, alterações e remoções verificáveis. HTTP 403, HTTP 500, timeout ou ausência de snapshot novo são falhas e não podem gerar confirmação de sucesso, publicação do espelho ou `emailAlertSent` positivo. Se o callback do agendador exceder o prazo, não se deve declarar sucesso apenas pelo status do agendador: devem ser verificados o estado gravado no banco, a página, o embed, o espelho GitHub e o e-mail.
 
 ## 7. GitHub e contingência
 

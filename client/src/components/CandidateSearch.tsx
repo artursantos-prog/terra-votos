@@ -86,6 +86,7 @@ export default function CandidateSearch({ category, embedded = false }: Candidat
   const candidatesQuery = trpc.candidates.list.useQuery(filters, { refetchInterval: embedded ? 60_000 : false });
   const optionsQuery = trpc.candidates.filterOptions.useQuery({ category }, { refetchInterval: embedded ? 60_000 : false });
   const statsQuery = trpc.candidates.stats.useQuery(undefined, { refetchInterval: embedded ? 60_000 : false });
+  const visibilityQuery = trpc.siteSettings.publicVisibility.useQuery(undefined, { refetchInterval: embedded ? 60_000 : false });
   const categoryTotal = category === "em_disputa" ? statsQuery.data?.emDisputa : statsQuery.data?.foraDaDisputa;
   const syncDegradationNotice = getElectionSyncDegradationNotice(statsQuery.data?.lastSuccessfulSyncAt, statsQuery.data?.lastSyncFailedAt);
   const pendingGroup = candidatePendingReplacement ? getCheatSheetGroup(candidatePendingReplacement.office) : undefined;
@@ -162,7 +163,7 @@ export default function CandidateSearch({ category, embedded = false }: Candidat
   return (
     <>
     <div className="screen-only min-h-screen bg-white text-foreground">
-      {embedded ? <header className="border-b border-[#e9e4e0] bg-white"><div className="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-3 px-4 py-3 sm:px-6"><a href="/embed" className="font-editorial text-base font-semibold text-[#1f1d1b]">eleições <span className="text-[#ff5a00]">no Terra</span></a><nav aria-label="Navegação do buscador incorporado" className="flex gap-4 text-xs font-extrabold text-[#625b55]"><a href="/embed" className={category === "em_disputa" ? "text-[#b63f00] underline decoration-[#ff5a00] underline-offset-8" : "hover:text-[#b63f00]"}>Em disputa</a><a href="/embed/fora-da-disputa" className={category === "fora_da_disputa" ? "text-[#b63f00] underline decoration-[#ff5a00] underline-offset-8" : "hover:text-[#b63f00]"}>Fora da disputa</a></nav></div></header> : <AppHeader />}
+      {embedded ? <header className="border-b border-[#e9e4e0] bg-white"><div className="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-3 px-4 py-3 sm:px-6"><a href="/embed" className="font-editorial text-base font-semibold text-[#1f1d1b]">eleições <span className="text-[#ff5a00]">no Terra</span></a><nav aria-label="Navegação do buscador incorporado" className="flex gap-4 text-xs font-extrabold text-[#625b55]"><a href="/embed" className={category === "em_disputa" ? "text-[#b63f00] underline decoration-[#ff5a00] underline-offset-8" : "hover:text-[#b63f00]"}>Em disputa</a>{visibilityQuery.data?.outsideDisputeVisible ? <a href="/embed/fora-da-disputa" className={category === "fora_da_disputa" ? "text-[#b63f00] underline decoration-[#ff5a00] underline-offset-8" : "hover:text-[#b63f00]"}>Fora da disputa</a> : null}</nav></div></header> : <AppHeader />}
       <main className={embedded ? "mx-auto max-w-7xl px-4 py-5 sm:px-6 md:py-7" : "container py-5 md:py-7"}>
         <section className="relative overflow-hidden border border-[#eee1d8] bg-[#fff8f3] px-6 py-7 md:px-8">
           <div className="absolute -right-12 -top-20 h-64 w-64 rounded-full bg-[#ff5a00]/15 blur-2xl" />

@@ -10,10 +10,11 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
+import { Switch } from "@/components/ui/switch";
 import { Skeleton } from "@/components/ui/skeleton";
 import { startLogin } from "@/const";
 import { trpc } from "@/lib/trpc";
-import { CheckCircle2, ClipboardList, ExternalLink, MessageSquareText, ShieldCheck, Trash2 } from "lucide-react";
+import { CheckCircle2, ClipboardList, ExternalLink, Eye, EyeOff, MessageSquareText, ShieldCheck, Trash2 } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
 import { Link } from "wouter";
@@ -39,6 +40,14 @@ export default function OwnerReports() {
   } | null>(null);
   const reportsQuery = trpc.reports.list.useQuery(undefined, { enabled: user?.role === "admin" });
   const feedbackQuery = trpc.feedback.list.useQuery(undefined, { enabled: user?.role === "admin" });
+  const visibilityQuery = trpc.siteSettings.publicVisibility.useQuery(undefined, { enabled: user?.role === "admin" });
+  const setVisibility = trpc.siteSettings.setOutsideDisputeVisibility.useMutation({
+    onSuccess: async ({ outsideDisputeVisible }) => {
+      await utils.siteSettings.publicVisibility.invalidate();
+      toast.success(outsideDisputeVisible ? "A página Fora da Disputa foi reativada." : "A página Fora da Disputa foi ocultada.");
+    },
+    onError: () => toast.error("Não foi possível atualizar a visibilidade da página."),
+  });
   const updateStatus = trpc.reports.updateStatus.useMutation({
     onSuccess: () => utils.reports.list.invalidate(),
   });
@@ -129,6 +138,28 @@ export default function OwnerReports() {
           </div>
           <Button asChild variant="outline"><Link href="/">Ir para a busca</Link></Button>
         </div>
+
+        <section className="mb-8 border border-[#e9e4e0] bg-[#fffaf6] p-5">
+          <div className="flex flex-wrap items-center justify-between gap-4">
+            <div className="flex items-start gap-3">
+              {visibilityQuery.data?.outsideDisputeVisible ? <Eye className="mt-0.5 h-5 w-5 text-[#ff5a00]" /> : <EyeOff className="mt-0.5 h-5 w-5 text-[#746e68]" />}
+              <div>
+                <h2 className="font-editorial text-xl font-semibold text-[#1f1d1b]">Página “Fora da Disputa”</h2>
+                <p className="mt-1 max-w-2xl text-sm leading-6 text-[#625b55]">Os registros continuam sendo sincronizados no back-end mesmo quando a página está oculta. Você pode reexibi-la quando considerar adequado.</p>
+                <p className="mt-2 text-xs font-semibold text-[#746e68]">Estado atual: {visibilityQuery.isLoading ? "consultando…" : visibilityQuery.data?.outsideDisputeVisible ? "visível publicamente" : "oculta publicamente"}</p>
+              </div>
+            </div>
+            <div className="flex items-center gap-3">
+              <span className="text-sm font-semibold text-[#4c4641]">Exibir página</span>
+              <Switch
+                checked={Boolean(visibilityQuery.data?.outsideDisputeVisible)}
+                onCheckedChange={enabled => setVisibility.mutate({ enabled })}
+                disabled={visibilityQuery.isLoading || setVisibility.isPending}
+                aria-label="Exibir página Fora da Disputa"
+              />
+            </div>
+          </div>
+        </section>
 
         <div className="overflow-hidden border border-[#e9e4e0] bg-white">
           {reportsQuery.isLoading ? (

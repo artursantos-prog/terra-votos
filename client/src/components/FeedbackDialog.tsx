@@ -24,7 +24,7 @@ export default function FeedbackDialog() {
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <Button type="button" onClick={() => setOpen(true)} variant="outline" size="sm" className="rounded-none border-[#ff5a00] text-[#b63f00] hover:bg-[#fff0e7] hover:text-[#b63f00]"><MessageSquarePlus className="mr-2 h-3.5 w-3.5" />Enviar comentário</Button>
+      <Button type="button" onClick={() => setOpen(true)} variant="outline" size="sm" className="min-h-10 rounded-none border-[#ff5a00] px-3 text-[#b63f00] hover:bg-[#fff0e7] hover:text-[#b63f00]"><MessageSquarePlus className="mr-2 h-3.5 w-3.5" />Enviar comentário</Button>
       <DialogContent className="rounded-none border-[#e9e4e0] sm:max-w-lg">
         <DialogHeader><DialogTitle className="font-editorial text-2xl">Comentário ou sugestão</DialogTitle><DialogDescription>Compartilhe sugestões sobre o buscador. Sua mensagem será encaminhada ao responsável para avaliação.</DialogDescription></DialogHeader>
         <form onSubmit={event => { event.preventDefault(); feedbackMutation.mutate({ message: message.trim(), contactEmail: contactEmail.trim() || undefined }); }} className="space-y-4">

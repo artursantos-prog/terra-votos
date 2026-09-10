@@ -1,4 +1,4 @@
-import { index, int, mysqlEnum, mysqlTable, text, timestamp, uniqueIndex, varchar } from "drizzle-orm/mysql-core";
+import { boolean, index, int, mysqlEnum, mysqlTable, text, timestamp, uniqueIndex, varchar } from "drizzle-orm/mysql-core";
 
 /**
  * Core user table backing auth flow.
@@ -120,6 +120,15 @@ export const electionSyncState = mysqlTable("election_sync_state", {
   uniqueIndex("election_sync_state_key_unique").on(table.syncKey),
 ]);
 
+export const siteSettings = mysqlTable("site_settings", {
+  id: int("id").autoincrement().primaryKey(),
+  settingKey: varchar("chave", { length: 128 }).notNull(),
+  enabled: boolean("habilitado").notNull().default(false),
+  updatedAt: timestamp("atualizado_em").defaultNow().onUpdateNow().notNull(),
+}, table => [
+  uniqueIndex("site_settings_key_unique").on(table.settingKey),
+]);
+
 export const errorReports = mysqlTable("error_reports", {
   id: int("id").autoincrement().primaryKey(),
   sqCandidate: varchar("sq_candidato", { length: 32 }).notNull(),
@@ -158,6 +167,7 @@ export type CandidateIdentityKey = typeof candidateIdentityKeys.$inferSelect;
 export type ElectionSyncState = typeof electionSyncState.$inferSelect;
 export type ErrorReport = typeof errorReports.$inferSelect;
 export type SiteFeedback = typeof siteFeedback.$inferSelect;
+export type SiteSetting = typeof siteSettings.$inferSelect;
 export type CandidateCategory = (typeof candidateCategoryValues)[number];
 export type ReportIssueType = (typeof reportIssueTypeValues)[number];
 export type ReportStatus = (typeof reportStatusValues)[number];

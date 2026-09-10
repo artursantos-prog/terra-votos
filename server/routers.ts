@@ -25,6 +25,8 @@ import {
   recordOfficialReportEvidence,
   updateErrorReportStatus,
   updateSiteFeedbackStatus,
+  getOutsideDisputeVisibility,
+  setOutsideDisputeVisibility,
 } from "./db";
 
 const candidateCategorySchema = z.enum(["em_disputa", "fora_da_disputa"]);
@@ -49,6 +51,15 @@ export const appRouter = router({
         success: true,
       } as const;
     }),
+  }),
+  siteSettings: router({
+    publicVisibility: publicProcedure.query(async () => ({
+      outsideDisputeVisible: await getOutsideDisputeVisibility(),
+    })),
+    setOutsideDisputeVisibility: adminProcedure.input(z.object({ enabled: z.boolean() }))
+      .mutation(async ({ input }) => ({
+        outsideDisputeVisible: await setOutsideDisputeVisibility(input.enabled),
+      })),
   }),
   candidates: router({
     list: publicProcedure.input(candidateFiltersSchema)

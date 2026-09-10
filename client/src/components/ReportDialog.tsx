@@ -51,7 +51,7 @@ export default function ReportDialog({ sqCandidate, candidateName, candidateCate
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <Button type="button" onClick={() => setOpen(true)} variant="outline" size="sm" className="gap-2 border-[#ff5a00] text-[#b63f00] hover:bg-[#fff0e7] hover:text-[#b63f00]">
+      <Button type="button" onClick={() => setOpen(true)} variant="outline" size="sm" className="min-h-10 gap-2 border-[#ff5a00] px-3 text-[#b63f00] hover:bg-[#fff0e7] hover:text-[#b63f00]">
         <Flag className="h-3.5 w-3.5" />
         Reportar erro
       </Button>

@@ -1,4 +1,5 @@
 import { Link, useLocation } from "wouter";
+import { trpc } from "@/lib/trpc";
 
 const navigation = [
   { href: "/", label: "Em disputa" },
@@ -7,6 +8,8 @@ const navigation = [
 
 export default function AppHeader() {
   const [location] = useLocation();
+  const visibilityQuery = trpc.siteSettings.publicVisibility.useQuery();
+  const visibleNavigation = navigation.filter(item => item.href !== "/fora-da-disputa" || visibilityQuery.data?.outsideDisputeVisible);
 
   return (
     <header className="border-b border-[#eee7e1] bg-white">
@@ -15,7 +18,7 @@ export default function AppHeader() {
           eleições <span className="text-[#ff5a00]">no Terra</span>
         </Link>
         <nav aria-label="Navegação principal" className="ml-auto flex items-center gap-5 text-xs font-extrabold">
-          {navigation.map(item => {
+          {visibleNavigation.map(item => {
             const active = location === item.href;
             return (
               <Link

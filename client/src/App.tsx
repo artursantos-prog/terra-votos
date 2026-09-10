@@ -1,7 +1,9 @@
 import { Toaster } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import NotFound from "@/pages/NotFound";
-import { Route, Switch } from "wouter";
+import { Route, Switch, useLocation } from "wouter";
+import { useEffect } from "react";
+import { trpc } from "./lib/trpc";
 import ErrorBoundary from "./components/ErrorBoundary";
 import { ThemeProvider } from "./contexts/ThemeContext";
 import Home from "./pages/Home";
@@ -9,14 +11,28 @@ import OutsideDispute from "./pages/OutsideDispute";
 import OwnerReports from "./pages/OwnerReports";
 import EmbeddedSearch from "./pages/EmbeddedSearch";
 
+function OutsideDisputeGate({ embedded = false }: { embedded?: boolean }) {
+  const [, navigate] = useLocation();
+  const visibilityQuery = trpc.siteSettings.publicVisibility.useQuery();
+
+  useEffect(() => {
+    if (!visibilityQuery.isLoading && !visibilityQuery.data?.outsideDisputeVisible) {
+      navigate(embedded ? "/embed" : "/", { replace: true });
+    }
+  }, [embedded, navigate, visibilityQuery.data?.outsideDisputeVisible, visibilityQuery.isLoading]);
+
+  if (visibilityQuery.isLoading || !visibilityQuery.data?.outsideDisputeVisible) return null;
+  return embedded ? <EmbeddedSearch category="fora_da_disputa" /> : <OutsideDispute />;
+}
+
 function Router() {
   // make sure to consider if you need authentication for certain routes
   return (
     <Switch>
       <Route path={"/"} component={Home} />
-      <Route path={"/fora-da-disputa"} component={OutsideDispute} />
+      <Route path={"/fora-da-disputa"} component={() => <OutsideDisputeGate />} />
       <Route path={"/embed"} component={() => <EmbeddedSearch category="em_disputa" />} />
-      <Route path={"/embed/fora-da-disputa"} component={() => <EmbeddedSearch category="fora_da_disputa" />} />
+      <Route path={"/embed/fora-da-disputa"} component={() => <OutsideDisputeGate embedded />} />
       <Route path={"/gestao/reportes"} component={OwnerReports} />
       <Route path={"/owner/reports"} component={OwnerReports} />
       <Route path={"/404"} component={NotFound} />
