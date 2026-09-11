@@ -190,3 +190,8 @@
 - [x] Corrigir problemas de layout, navegação, toque, leitura e transbordamento encontrados na revisão móvel.
 - [x] Validar a experiência móvel corrigida em diferentes larguras, além do desktop e do embed.
 - [x] Publicar o código completo atualizado e seguro na branch `source-code` do GitHub, sem segredos ou artefatos privados.
+
+- [x] Verificar a execução diária mais recente, sua resposta HTTP e a configuração ativa da agenda das 9h de Brasília.
+- [x] Reconciliar snapshot do banco, data exibida na página, embed, e-mail de alerta e GitHub com a mesma execução.
+- [ ] Corrigir qualquer falha de execução ou alerta e não declarar sucesso sem evidência 2xx e publicação correspondente.
+- [ ] Registrar a auditoria final e confirmar o funcionamento diário com evidências verificáveis.

@@ -82,9 +82,7 @@ describe("election sync import handler", () => {
     vi.stubGlobal("fetch", vi.fn()
       .mockResolvedValueOnce({ ok: true, arrayBuffer: async () => candidateZip })
       .mockResolvedValueOnce({ ok: true, arrayBuffer: async () => complementZip })
-      .mockResolvedValueOnce({ ok: true, arrayBuffer: async () => socialZip })
-      .mockResolvedValueOnce({ ok: true, json: async () => ({ cargos: [{ codigo: 3 }] }) })
-      .mockResolvedValueOnce({ ok: true, json: async () => ({ candidatos: [{ id: 1, descricaoSituacao: "Deferido" }] }) }));
+      .mockResolvedValueOnce({ ok: true, arrayBuffer: async () => socialZip }));
     const { state, res } = response();
 
     await electionSyncImportHandler(request({
@@ -94,14 +92,15 @@ describe("election sync import handler", () => {
     }), res);
 
     expect(state.statusCode).toBe(200);
-    expect(state.body).toMatchObject({ ok: true, imported: 1, socialProfilesImported: 1, governmentPlansImported: 1, ticketMembersImported: 1, statusUpdatesImported: 1, emailAlertSent: true });
+    expect(state.body).toMatchObject({ ok: true, imported: 1, socialProfilesImported: 1, governmentPlansImported: 0, ticketMembersImported: 0, statusUpdatesImported: 0, emailAlertSent: true });
     expect(fetch).toHaveBeenCalledTimes(3);
     expect(replaceCandidates).toHaveBeenCalledWith(expect.arrayContaining([expect.objectContaining({ sqCandidate: "1" })]));
     expect(replaceCandidateSocialProfiles).toHaveBeenCalledWith(expect.arrayContaining([expect.objectContaining({ sqCandidate: "1", label: "Instagram" })]));
-    expect(replaceGovernmentPlans).toHaveBeenCalledWith([expect.objectContaining({ sqCandidate: "1", officialUrl: "https://divulgacandcontas.tse.jus.br/divulga/rest/arquivo/doc/42" })]);
-    expect(replaceCandidateTicketMembers).toHaveBeenCalledWith([{ principalSqCandidate: "1", memberSqCandidate: "2", memberOffice: "Vice-governador" }]);
-    expect(updateCandidateOfficialStatuses).toHaveBeenCalledWith([{ sqCandidate: "1", officialStatus: "Deferido" }]);
-    expect(recordElectionSyncSuccess).toHaveBeenCalledWith(expect.objectContaining({ candidatesImported: 1, governmentPlansImported: 1, ticketMembersImported: 1 }));
+    expect(replaceGovernmentPlans).not.toHaveBeenCalled();
+    expect(replaceCandidateTicketMembers).not.toHaveBeenCalled();
+    expect(updateCandidateOfficialStatuses).toHaveBeenCalledWith([]);
+    expect(fetchOfficialTseSupplement).not.toHaveBeenCalled();
+    expect(recordElectionSyncSuccess).toHaveBeenCalledWith(expect.objectContaining({ candidatesImported: 1, governmentPlansImported: 0, ticketMembersImported: 0 }));
     expect(sendOwnerEmail).toHaveBeenCalledWith(expect.objectContaining({
       subject: "Sincronização eleitoral concluída — Buscador de Candidaturas",
       text: expect.stringContaining("Candidatura incluída"),

@@ -101,7 +101,7 @@ Excluir um reporte não apaga nem modifica dados eleitorais. A evidência eleito
 
 ## 6. Sincronização diária e alertas
 
-Há uma única rotina oficial de sincronização, programada para **09h no horário de Brasília**. Ela executa a importação a partir dos três ZIPs permitidos, usa `DS_SITUACAO_CANDIDATURA` do ZIP oficial como fonte autoritativa da situação e consulta o DivulgaCand apenas para complementos oficiais, como planos, redes e vínculos de chapa, quando aplicável. Em seguida, gera o espelho GitHub Pages e aciona o alerta por e-mail ao responsável.
+Há uma única rotina oficial de sincronização, programada para **09h no horário de Brasília**. O ciclo automático processa os três ZIPs permitidos, usa `DS_SITUACAO_CANDIDATURA` do ZIP oficial como fonte autoritativa da situação, atualiza candidaturas, fotos e redes sociais e, em seguida, gera o espelho GitHub Pages e aciona o alerta por e-mail ao responsável. Consultas detalhadas do DivulgaCand para planos e vínculos de chapa ficam disponíveis sob demanda, pois a varredura massiva durante o callback provocava HTTP 403 e timeout.
 
 | Item | Configuração |
 | --- | --- |
@@ -109,9 +109,9 @@ Há uma única rotina oficial de sincronização, programada para **09h no horá
 | Endpoint | `POST /api/scheduled/election-sync-import` |
 | Cron UTC | `0 0 12 * * *` |
 | Horário local | 09h em Brasília |
-| Acompanhamento posterior | Uma única rotina, às 09h30 em Brasília, sem concorrência de cron ou processos locais. |
+| Acompanhamento posterior | Não há uma segunda agenda concorrente; a confirmação usa o log do callback, banco, página, embed, e-mail e GitHub. |
 
-Depois de cada snapshot, o produto mantém o último conjunto oficial funcional em caso de indisponibilidade do TSE ou da plataforma. O aviso público distingue uma falha de atualização de uma ausência de dados. A antiga varredura adicional de listagens por UF e cargo foi retirada do ciclo diário porque gerava muitas chamadas ao DivulgaCand, incluindo a rota BR/1, que podia responder HTTP 403 e fazer o callback ultrapassar o limite do agendador.
+Depois de cada snapshot, o produto mantém o último conjunto oficial funcional em caso de indisponibilidade do TSE ou da plataforma. O aviso público distingue uma falha de atualização de uma ausência de dados. A antiga varredura adicional de listagens por UF e cargo e de detalhes por candidatura foi retirada do ciclo automático porque gerava muitas chamadas ao DivulgaCand, incluindo a rota BR/1, que podia responder HTTP 403 e fazer o callback ultrapassar o limite do agendador. A execução diária agora prioriza concluir e confirmar a atualização dos ZIPs oficiais dentro do limite do callback.
 
 O e-mail deve detalhar o resultado, inclusões, alterações e remoções verificáveis. HTTP 403, HTTP 500, timeout ou ausência de snapshot novo são falhas e não podem gerar confirmação de sucesso, publicação do espelho ou `emailAlertSent` positivo. Se o callback do agendador exceder o prazo, não se deve declarar sucesso apenas pelo status do agendador: devem ser verificados o estado gravado no banco, a página, o embed, o espelho GitHub e o e-mail.
 
@@ -147,7 +147,13 @@ pnpm vitest run --exclude server/resend.test.ts
 
 Após uma mudança funcional, salve um checkpoint e atualize somente `source-code`. A branch `main` deve continuar dedicada ao GitHub Pages.
 
-## 10. Referências públicas
+## 10. Auditoria de 11/09/2026
+
+A agenda permaneceu ativa e executou às 09h05min53s de Brasília. O agendador registrou timeout e não devolveu resposta HTTP 2xx, mas o banco persistiu 20.919 candidaturas e 50.718 redes sociais; a página pública refletiu 19.739 candidaturas em disputa e 280 fora da disputa; e o GitHub Pages recebeu o commit `4dd3319cfc89324a54b40610b0f5c147c3865fc5` às 09h05min55s. Como não houve corpo de resposta do callback, o alerta não pode ser confirmado pelo agendador como `emailAlertSent: true`. O relatório completo está em `auditoria_execucao_2026-09-11.md`.
+
+Esse resultado prova que o processamento foi gravado e publicado, mas também mostra que a garantia operacional ainda precisa exigir uma resposta 2xx confirmável. A correção aplicada reduz o trabalho do callback; a próxima execução deve ser reavaliada antes de declarar a rotina plenamente normalizada.
+
+## 11. Referências públicas
 
 1. [Dados abertos do TSE — Candidatos 2026](https://dadosabertos.tse.jus.br/dataset/candidatos-2026)
 2. [DivulgaCandContas — TSE](https://divulgacandcontas.tse.jus.br/divulga/#/home)
@@ -156,4 +162,4 @@ Após uma mudança funcional, salve um checkpoint e atualize somente `source-cod
 
 ---
 
-**Última versão auditada:** checkpoint `6b0ede32`, 27/08/2026.
+**Última versão auditada:** execução de 11/09/2026, com relatório em `auditoria_execucao_2026-09-11.md`; último checkpoint de código publicado: `37e9e45d`.

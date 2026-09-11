@@ -35,6 +35,7 @@ const syncPayloadSchema = z.object({
   candidatesUrl: z.string().url(),
   complementaryUrl: z.string().url(),
   socialUrl: z.string().url(),
+  refreshOfficialDetails: z.boolean().optional().default(false),
 }).strict();
 
 const TSE_ELECTION_ID_2026 = "20322002026";
@@ -433,12 +434,13 @@ export async function runOfficialElectionSync(payload: z.infer<typeof syncPayloa
       .filter((record): record is CandidateSocialImportRecord => record !== null);
     const previousSnapshot = await getElectionSyncSnapshot();
     // O ZIP oficial de candidaturas já traz DS_SITUACAO_CANDIDATURA para cada registro.
-    // A antiga varredura adicional por UF/cargo fazia centenas de chamadas ao DivulgaCand,
-    // incluindo BR/1, e podia gerar HTTP 403 e timeout do callback. Mantemos a fonte oficial
-    // do ZIP como autoritativa e consultamos detalhes oficiais apenas para planos, redes e chapas.
-    const [officialDocuments] = await Promise.all([
-      discoverOfficialPlansAndTickets(records),
-    ]);
+    // A antiga varredura adicional por candidato fazia milhares de chamadas ao DivulgaCand,
+    // incluindo BR/1, e podia gerar HTTP 403 e timeout do callback. O ciclo diário usa
+    // exclusivamente os três ZIPs oficiais; detalhes de planos e chapas seguem disponíveis
+    // sob demanda e podem ser atualizados em uma operação controlada com refreshOfficialDetails.
+    const officialDocuments = payload.refreshOfficialDetails
+      ? await discoverOfficialPlansAndTickets(records)
+      : { fullyRead: false, plans: [], ticketMembers: [], statusUpdates: [] };
     const statusUpdates = officialDocuments.statusUpdates;
     const changes = buildElectionSyncChangeDetails({
       previous: previousSnapshot,
